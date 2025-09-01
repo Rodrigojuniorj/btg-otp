@@ -38,7 +38,7 @@ export class UserOtpHistoryService {
 
     await this.userOtpHistoryRepository.create(createOtpDto)
 
-    return { hash, expiresAt }
+    return { hash, expiresAt, otpCode }
   }
 
   async findByHash(hash: string) {
@@ -59,11 +59,13 @@ export class UserOtpHistoryService {
 
   async validateOtp(
     validateOtpDto: ValidateOtpDto,
+    hash: string,
   ): Promise<UserOtpHistoryDto> {
-    const { hash, otpCode } = validateOtpDto
+    const { otpCode } = validateOtpDto
 
     const otpHistory = await this.userOtpHistoryRepository.findByHash(hash)
-
+    console.log('hash', hash)
+    console.log('otpHistory', otpHistory)
     if (!otpHistory) {
       throw new CustomException(
         ErrorMessages.USER_OTP_HISTORY.INVALID_OTP(),

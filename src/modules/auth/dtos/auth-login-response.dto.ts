@@ -5,5 +5,5 @@ export class AuthLoginResponseDto {
     description: 'Token JWT para autenticação',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
-  access_token: string
+  accessToken: string
 }

@@ -9,6 +9,7 @@ import { UserResponseDto } from '../dto/user-response.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import { UserResponsePasswordDto } from '../dto/user-response-password.dto'
+import { UserDto } from '../dto/user.dto'
 
 @Injectable()
 export class UserRepository extends UserRepositoryPort {
@@ -19,7 +20,7 @@ export class UserRepository extends UserRepositoryPort {
     super()
   }
 
-  async findByEmail(email: string): Promise<UserResponseDto | null> {
+  async findByEmail(email: string): Promise<UserDto | null> {
     return await this.repository.findOne({ where: { email } })
   }
 
@@ -29,7 +30,7 @@ export class UserRepository extends UserRepositoryPort {
     return await this.repository.findOne({ where: { email } })
   }
 
-  async findById(id: number): Promise<UserResponseDto | null> {
+  async findById(id: number): Promise<UserDto | null> {
     return await this.repository.findOne({ where: { id } })
   }
 

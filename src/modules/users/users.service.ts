@@ -22,6 +22,19 @@ export class UsersService {
     return await this.userRepository.findByEmailAndPassword(email)
   }
 
+  async profile(id: number): Promise<UserResponseDto> {
+    const user = await this.userRepository.findById(id)
+
+    if (!user) {
+      throw new CustomException(ErrorMessages.USER.NOT_FOUND(id))
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = user
+
+    return rest
+  }
+
   async findById(id: number): Promise<UserResponseDto> {
     const user = await this.userRepository.findById(id)
 

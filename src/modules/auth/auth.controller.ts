@@ -19,11 +19,14 @@ import { LoginDto } from './dtos/login.dto'
 import { RegisterDto } from './dtos/register.dto'
 
 import { Public } from '../../common/decorators/public.decorator'
+import { OtpAuth } from '../../common/decorators/otp-auth.decorator'
 
 import { ValidateOtpDto } from '../user-otp-history/dto/validate-otp.dto'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { LoginOtpChallengeResponseDto } from './dtos/login-otp-challenge-response.dto'
 import { TaskType } from '@/common/enums/task-type.enum'
+import { GetCurrentUserOtp } from '@/common/decorators/get-current-user-otp.decorator'
+import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
 
 @ApiTags('Autenticação')
 @ApiBearerAuth('Bearer')
@@ -54,13 +57,18 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginOtpChallengeResponseDto> {
-    await this.authService.login(loginDto.email, loginDto.password)
+    const loginOtpResponseDto = await this.authService.login(
+      loginDto.email,
+      loginDto.password,
+    )
 
     res.setHeader('x-task-type', TaskType.OTP_CHALLENGER)
 
     return {
       message: 'Código OTP enviado para seu email',
       taskType: TaskType.OTP_CHALLENGER,
+      accessToken: loginOtpResponseDto.accessToken,
+      validationUrl: loginOtpResponseDto.validationUrl,
     }
   }
 
@@ -99,18 +107,27 @@ export class AuthController {
     await this.authService.register(registerDto)
   }
 
-  @Public()
   @Post('validate-otp')
+  @OtpAuth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Validar código OTP' })
+  @ApiOperation({
+    summary: 'Validar código OTP',
+    description:
+      'Valida o código OTP enviado por email. Requer o token JWT temporário gerado no login.',
+  })
   @ApiResponse({
     status: 200,
     description: 'OTP validado com sucesso, token de acesso gerado',
     type: AuthLoginResponseDto,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT inválido ou expirado',
+  })
   async validateOtp(
     @Body() validateOtpDto: ValidateOtpDto,
+    @GetCurrentUserOtp() userOtp: JwtOtpPayload,
   ): Promise<AuthLoginResponseDto> {
-    return this.authService.validate(validateOtpDto)
+    return this.authService.validate(validateOtpDto, userOtp)
   }
 }
