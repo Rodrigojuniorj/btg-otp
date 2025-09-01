@@ -14,10 +14,7 @@ export abstract class UserRepositoryPort {
 
   abstract create(createUserDto: CreateUserDto): Promise<void>
 
-  abstract update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserResponseDto>
+  abstract update(id: number, updateUserDto: UpdateUserDto): Promise<void>
 
   abstract delete(id: number): Promise<void>
 

@@ -20,45 +20,17 @@ export class UserRepository extends UserRepositoryPort {
   }
 
   async findByEmail(email: string): Promise<UserResponseDto | null> {
-    const user = await this.repository.findOne({ where: { email } })
-    if (!user) return null
-
-    const dto = new UserResponseDto()
-    dto.id = user.id
-    dto.name = user.name
-    dto.email = user.email
-    dto.createdAt = user.createdAt
-    dto.updatedAt = user.updatedAt
-    return dto
+    return await this.repository.findOne({ where: { email } })
   }
 
   async findByEmailAndPassword(
     email: string,
   ): Promise<UserResponsePasswordDto | null> {
-    const user = await this.repository.findOne({ where: { email } })
-    if (!user) return null
-
-    const dto = new UserResponsePasswordDto()
-    dto.id = user.id
-    dto.name = user.name
-    dto.email = user.email
-    dto.password = user.password
-    dto.createdAt = user.createdAt
-    dto.updatedAt = user.updatedAt
-    return dto
+    return await this.repository.findOne({ where: { email } })
   }
 
   async findById(id: number): Promise<UserResponseDto | null> {
-    const user = await this.repository.findOne({ where: { id } })
-    if (!user) return null
-
-    const dto = new UserResponseDto()
-    dto.id = user.id
-    dto.name = user.name
-    dto.email = user.email
-    dto.createdAt = user.createdAt
-    dto.updatedAt = user.updatedAt
-    return dto
+    return await this.repository.findOne({ where: { id } })
   }
 
   async create(createUserDto: CreateUserDto): Promise<void> {
@@ -66,24 +38,8 @@ export class UserRepository extends UserRepositoryPort {
     await this.repository.save(user)
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserResponseDto> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<void> {
     await this.repository.update(id, updateUserDto)
-    const updatedUser = await this.repository.findOne({ where: { id } })
-
-    if (!updatedUser) {
-      throw new CustomException(ErrorMessages.USER.NOT_FOUND(id))
-    }
-
-    const dto = new UserResponseDto()
-    dto.id = updatedUser.id
-    dto.name = updatedUser.name
-    dto.email = updatedUser.email
-    dto.createdAt = updatedUser.createdAt
-    dto.updatedAt = updatedUser.updatedAt
-    return dto
   }
 
   async delete(id: number): Promise<void> {
