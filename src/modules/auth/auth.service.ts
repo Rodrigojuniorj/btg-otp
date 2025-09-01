@@ -12,6 +12,8 @@ import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { LoginOtpResponseDto } from '../user-otp-history/dto/login-otp-response.dto'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
+import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
+import { EmailTemplatesService } from '@/providers/email/templates/email-templates.service'
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userOtpHistoryService: UserOtpHistoryService,
     private readonly envConfigService: EnvConfigService,
+    private readonly sendEmailQueueProvider: SendEmailQueueProvider,
+    private readonly emailTemplatesService: EmailTemplatesService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<AuthUser> {
@@ -59,7 +63,8 @@ export class AuthService {
 
     await this.userOtpHistoryService.expireOldOtps(user.id)
 
-    const { hash, expiresAt } = await this.userOtpHistoryService.create(user.id)
+    const { hash, expiresAt, otpCode } =
+      await this.userOtpHistoryService.create(user.id)
 
     const otpToken = this.jwtService.sign(
       {
@@ -73,6 +78,19 @@ export class AuthService {
         secret: this.envConfigService.get('JWT_OTP_SECRET'),
       },
     )
+
+    const emailHtml = this.emailTemplatesService.generateOtpEmail({
+      userName: user.name,
+      otpCode,
+      companyName: 'BTG OTP System',
+      otpExpirationMinutes: this.envConfigService.get('OTP_MINUTE_DURATION'),
+    })
+
+    await this.sendEmailQueueProvider.execute({
+      recipient: user.email,
+      subject: 'Token de Acesso - BTG OTP System',
+      body: emailHtml,
+    })
 
     return {
       accessToken: otpToken,

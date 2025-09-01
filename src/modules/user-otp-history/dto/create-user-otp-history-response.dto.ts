@@ -8,6 +8,12 @@ export class CreateUserOtpHistoryResponseDto {
   hash: string
 
   @ApiProperty({
+    description: 'Código OTP',
+    example: '123456',
+  })
+  otpCode: string
+
+  @ApiProperty({
     description: 'Data de expiração',
     example: '2025-01-01T12:00:00Z',
   })

@@ -8,9 +8,16 @@ import { UsersModule } from '../users/users.module'
 import { UserOtpHistoryModule } from '../user-otp-history/user-otp-history.module'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { JwtService } from '@nestjs/jwt'
+import { EmailProviderModule } from '@/providers/email/email.provider.module'
 
 @Module({
-  imports: [PassportModule, EnvConfigModule, UsersModule, UserOtpHistoryModule],
+  imports: [
+    PassportModule,
+    EnvConfigModule,
+    UsersModule,
+    UserOtpHistoryModule,
+    EmailProviderModule,
+  ],
   providers: [AuthService, JwtStrategy, EnvConfigService, JwtService],
   controllers: [AuthController],
   exports: [AuthService],

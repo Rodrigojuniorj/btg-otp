@@ -38,7 +38,7 @@ export class UserOtpHistoryService {
 
     await this.userOtpHistoryRepository.create(createOtpDto)
 
-    return { hash, expiresAt }
+    return { hash, expiresAt, otpCode }
   }
 
   async findByHash(hash: string) {
