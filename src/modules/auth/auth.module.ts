@@ -2,20 +2,20 @@ import { Module } from '@nestjs/common'
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
 import { JwtStrategy } from '../../common/strategies/jwt.strategy'
-import { User } from '../users/entities/user.entity'
-import { UserRepository } from '../users/repositories/user.repository'
-import { UserRepositoryPort } from '../users/repositories/port/user.repository.port'
 import { EnvConfigModule } from '../../common/service/env/env-config.module'
+import { UsersModule } from '../users/users.module'
+import { UserOtpHistoryModule } from '../user-otp-history/user-otp-history.module'
+import { EnvConfigService } from '@/common/service/env/env-config.service'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
     PassportModule,
     EnvConfigModule,
+    UsersModule,
+    UserOtpHistoryModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -27,14 +27,7 @@ import { EnvConfigModule } from '../../common/service/env/env-config.module'
       inject: [ConfigService],
     }),
   ],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    {
-      provide: UserRepositoryPort,
-      useClass: UserRepository,
-    },
-  ],
+  providers: [AuthService, JwtStrategy, EnvConfigService],
   controllers: [AuthController],
   exports: [AuthService],
 })

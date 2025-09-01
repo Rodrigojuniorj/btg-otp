@@ -1,11 +1,17 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Res,
+} from '@nestjs/common'
+import { Response } from 'express'
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiBody,
   ApiBearerAuth,
-  ApiUnauthorizedResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger'
 import { AuthService } from './auth.service'
@@ -13,7 +19,11 @@ import { LoginDto } from './dtos/login.dto'
 import { RegisterDto } from './dtos/register.dto'
 
 import { Public } from '../../common/decorators/public.decorator'
+
+import { ValidateOtpDto } from '../user-otp-history/dto/validate-otp.dto'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
+import { LoginOtpChallengeResponseDto } from './dtos/login-otp-challenge-response.dto'
+import { TaskType } from '@/common/enums/task-type.enum'
 
 @ApiTags('Autenticação')
 @ApiBearerAuth('Bearer')
@@ -22,32 +32,36 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @ApiOperation({
-    summary: 'Fazer login no sistema',
-    description:
-      'Autentica um usuário no sistema e retorna um token JWT válido',
-  })
-  @ApiBody({ type: LoginDto })
+  @Post('login')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Realizar login e solicitar OTP' })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Login realizado com sucesso',
-    type: AuthLoginResponseDto,
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Credenciais inválidas',
-    schema: {
-      type: 'object',
-      properties: {
-        statusCode: { type: 'number', example: 401 },
-        message: { type: 'string', example: 'Credenciais inválidas' },
-        error: { type: 'string', example: 'Unauthorized' },
+    status: 202,
+    description:
+      'Login realizado com sucesso, OTP solicitado e enviado por email',
+    type: LoginOtpChallengeResponseDto,
+    headers: {
+      'x-task-type': {
+        description: 'Tipo de tarefa pendente',
+        schema: {
+          type: 'string',
+          example: 'otp-challenger',
+        },
       },
     },
   })
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto): Promise<AuthLoginResponseDto> {
-    return this.authService.login(loginDto)
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginOtpChallengeResponseDto> {
+    await this.authService.login(loginDto.email, loginDto.password)
+
+    res.setHeader('x-task-type', TaskType.OTP_CHALLENGER)
+
+    return {
+      message: 'Código OTP enviado para seu email',
+      taskType: TaskType.OTP_CHALLENGER,
+    }
   }
 
   @ApiOperation({
@@ -83,5 +97,20 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<void> {
     await this.authService.register(registerDto)
+  }
+
+  @Public()
+  @Post('validate-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validar código OTP' })
+  @ApiResponse({
+    status: 200,
+    description: 'OTP validado com sucesso, token de acesso gerado',
+    type: AuthLoginResponseDto,
+  })
+  async validateOtp(
+    @Body() validateOtpDto: ValidateOtpDto,
+  ): Promise<AuthLoginResponseDto> {
+    return this.authService.validate(validateOtpDto)
   }
 }
