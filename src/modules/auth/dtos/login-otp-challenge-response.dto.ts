@@ -10,10 +10,22 @@ export class LoginOtpChallengeResponseDto {
   message: string
 
   @ApiProperty({
+    description: 'JWT temporário para validação do OTP',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  accessToken: string
+
+  @ApiProperty({
     description: 'Tipo de tarefa pendente',
     example: TaskType.OTP_CHALLENGER,
     enum: TaskType,
     enumName: 'TaskType',
   })
   taskType: TaskType
+
+  @ApiProperty({
+    description: 'URL para validação do OTP',
+    example: '/auth/validate-otp/abc123def456',
+  })
+  validationUrl: string
 }

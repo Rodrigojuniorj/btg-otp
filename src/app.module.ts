@@ -11,6 +11,7 @@ import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard'
 import { BullModule } from '@nestjs/bullmq'
 import { UserOtpHistoryModule } from './modules/user-otp-history/user-otp-history.module'
 import { UsersModule } from './modules/users/users.module'
+import { JwtModule } from '@nestjs/jwt'
 
 @Module({
   imports: [
@@ -42,11 +43,21 @@ import { UsersModule } from './modules/users/users.module'
         },
       }),
     }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRES_IN'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     EnvConfigModule,
+    AuthModule,
     DatabaseModule,
     UsersModule,
     UserOtpHistoryModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [
