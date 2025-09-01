@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm'
-import { User } from './user.entity'
+import { User } from '../../users/entities/user.entity'
 import { UserOTPHistoryStatus } from '../enums/user-otp-history.enum'
 
 @Entity('user_otp_history')
@@ -15,8 +15,8 @@ export class UserOtpHistory {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ type: 'varchar', name: 'user_id' })
-  userId: string
+  @Column({ type: 'integer', name: 'user_id' })
+  userId: number
 
   @Column({ type: 'varchar', name: 'hash', length: 255 })
   hash: string

@@ -7,6 +7,12 @@ export const ErrorMessages = {
     UNAUTHORIZED: () => 'Usuário não autorizado',
     FORBIDDEN: () => 'Acesso negado',
   },
+  USER_OTP_HISTORY: {
+    INVALID_OTP: () => 'OTP inválido',
+    OTP_EXPIRED: () => 'OTP expirado',
+    OTP_USED: () => 'OTP já foi utilizado',
+    INVALID_OTP_CODE: () => 'Código OTP inválido',
+  },
   CUSTOMER: {
     NOT_FOUND_DOCUMENT: (document: string) =>
       `Cliente com documento ${document} não encontrado`,
