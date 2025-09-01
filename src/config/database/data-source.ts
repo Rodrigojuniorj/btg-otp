@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm'
 import { config } from 'dotenv'
 import { User } from '../../modules/users/entities/user.entity'
-import { UserOtpHistory } from '../../modules/users/entities/user-otp-history.entity'
+import { UserOtpHistory } from '../../modules/user-otp-history/entities/user-otp-history.entity'
 
 config()
 
