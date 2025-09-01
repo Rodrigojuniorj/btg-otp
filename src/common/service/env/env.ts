@@ -25,6 +25,9 @@ export const envSchema = z
     REDIS_DB: z.coerce.number().optional().default(0),
     REDIS_PASSWORD: z.string().optional().default(''),
     SERVER_URL: z.string(),
+    OTP_MINUTE_DURATION: z.coerce.number().optional().default(5),
+    OTP_LENGTH: z.coerce.number().optional().default(6),
+    JWT_OTP_SECRET: z.string(),
   })
   .transform((env) => ({
     ...env,
