@@ -1,5 +1,5 @@
-import { UserJwtPayload } from '@/modules/auth/interfaces/auth-response.interface'
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
+import { UserJwtPayload } from '../interfaces/user-jwt-payload.interface'
 
 export const GetCurrentUserId = createParamDecorator(
   (_: undefined, context: ExecutionContext): number => {
