@@ -4,13 +4,16 @@ import { Repository, Not } from 'typeorm'
 import { Otp } from '../entities/otp.entity'
 import { OtpPurpose, OtpStatus } from '../enums/otp.enum'
 import { OtpDto } from '../dto/otp.dto'
+import { OtpRepositoryPort } from './port/otp.repository.port'
 
 @Injectable()
-export class OtpRepository {
+export class OtpRepository extends OtpRepositoryPort {
   constructor(
     @InjectRepository(Otp)
     private readonly repository: Repository<Otp>,
-  ) {}
+  ) {
+    super()
+  }
 
   async create(otpData: Partial<OtpDto>): Promise<OtpDto> {
     const otp = this.repository.create({
@@ -27,7 +30,7 @@ export class OtpRepository {
     })
   }
 
-  async findActiveByIdentifier(identifier: string): Promise<Otp | null> {
+  async findActiveByIdentifier(identifier: string): Promise<OtpDto | null> {
     return this.repository.findOne({
       where: {
         identifier,

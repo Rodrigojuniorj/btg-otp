@@ -7,11 +7,20 @@ import { EmailProviderModule } from '@/providers/email/email.provider.module'
 import { OtpController } from './otp.controller'
 import { OtpService } from './otp.service'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
+import { OtpRepositoryPort } from './repositories/port/otp.repository.port'
 
 @Module({
   imports: [TypeOrmModule.forFeature([Otp]), CacheModule, EmailProviderModule],
   controllers: [OtpController],
-  providers: [OtpService, OtpRepository, EnvConfigService],
+  providers: [
+    OtpService,
+    OtpRepository,
+    EnvConfigService,
+    {
+      provide: OtpRepositoryPort,
+      useClass: OtpRepository,
+    },
+  ],
   exports: [OtpService],
 })
 export class OtpModule {}

@@ -1,5 +1,4 @@
 import { Injectable, HttpStatus } from '@nestjs/common'
-import { OtpRepository } from './repositories/otp.repository'
 import { CreateOtpDto } from './dto/create-otp.dto'
 import { CreateOtpResponseDto } from './dto/create-otp-response.dto'
 import { ValidateOtpDto } from './dto/validate-otp.dto'
@@ -10,11 +9,12 @@ import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { CustomException } from '@/common/exceptions/customException'
 import { OtpDto } from './dto/otp.dto'
 import { ErrorMessages } from '@/common/constants/errorMessages'
+import { OtpRepositoryPort } from './repositories/port/otp.repository.port'
 
 @Injectable()
 export class OtpService {
   constructor(
-    private readonly otpRepository: OtpRepository,
+    private readonly otpRepository: OtpRepositoryPort,
     private readonly envConfigService: EnvConfigService,
   ) {}
 
