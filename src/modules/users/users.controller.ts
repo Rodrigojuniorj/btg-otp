@@ -17,7 +17,7 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('profile')
-  @HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Obter perfil do usuário' })
   @ApiResponse({
     status: 200,
