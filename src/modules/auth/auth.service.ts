@@ -5,28 +5,29 @@ import { RegisterDto } from './dtos/register.dto'
 import { AuthUser } from './interfaces/auth-response.interface'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
-import { ValidateOtpDto } from '../user-otp-history/dto/validate-otp.dto'
 import { UsersService } from '../users/users.service'
-import { UserOtpHistoryService } from '../user-otp-history/user-otp-history.service'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
-import { LoginOtpResponseDto } from '../user-otp-history/dto/login-otp-response.dto'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { CacheRepository } from '@/providers/cache/cache-repository'
 import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
 import { EmailTemplatesService } from '@/providers/email/templates'
 import { parseTimeToSeconds } from '@/common/utils/parse-time-to-seconds.util'
+import { OtpService } from '../otp/otp.service'
+import { OtpPurpose } from '../otp/enums/otp.enum'
+import { AuthLoginValidateResponseDto } from './dtos/auth-login-validate-response.dto'
+import { ValidateOtpDto } from '../otp/dto/validate-otp.dto'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly userOtpHistoryService: UserOtpHistoryService,
     private readonly envConfigService: EnvConfigService,
     private readonly cache: CacheRepository,
     private readonly sendEmailQueueProvider: SendEmailQueueProvider,
     private readonly emailTemplatesService: EmailTemplatesService,
+    private readonly otpService: OtpService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<AuthUser> {
@@ -61,11 +62,13 @@ export class AuthService {
     })
   }
 
-  async login(email: string, password: string): Promise<LoginOtpResponseDto> {
+  async login(email: string, password: string): Promise<AuthLoginResponseDto> {
     const user = await this.validateUser(email, password)
 
-    const { hash, expiresAt, otpCode } =
-      await this.userOtpHistoryService.create(user.id)
+    const { hash, expiresAt, otpCode } = await this.otpService.create({
+      email: user.email,
+      purpose: OtpPurpose.LOGIN,
+    })
 
     await this.cache.invalidateCache(`otp_session:${user.id}:*`)
 
@@ -104,7 +107,6 @@ export class AuthService {
     })
 
     return {
-      hash,
       accessToken: otpToken,
       validationUrl: `/auth/validate-otp/${hash}`,
     }
@@ -113,7 +115,7 @@ export class AuthService {
   async validate(
     validateOtpDto: ValidateOtpDto,
     user: JwtOtpPayload,
-  ): Promise<AuthLoginResponseDto> {
+  ): Promise<AuthLoginValidateResponseDto> {
     const isSessionValid = await this.cache.get(
       `otp_session:${user.sub}:${user.hash}`,
     )
@@ -121,23 +123,19 @@ export class AuthService {
       throw new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS())
     }
 
-    const otpHistory = await this.userOtpHistoryService.validateOtp(
-      { otpCode: validateOtpDto.otpCode },
-      user.hash,
-    )
-
-    if (otpHistory.userId !== user.sub) {
-      throw new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS())
-    }
+    await this.otpService.validateOtp({
+      otpCode: validateOtpDto.otpCode,
+      hash: user.hash,
+    })
 
     await this.cache.delete(`otp_session:${user.hash}`)
 
     const accessToken = this.jwtService.sign(
       {
-        sub: otpHistory.user.id,
-        email: otpHistory.user.email,
+        sub: user.sub,
+        email: user.email,
         type: 'access',
-        hash: otpHistory.hash,
+        hash: user.hash,
       },
       {
         expiresIn: this.envConfigService.get('JWT_EXPIRES_IN'),
@@ -146,8 +144,8 @@ export class AuthService {
     )
 
     await this.cache.set(
-      `otp_session:${otpHistory.user.id}:${otpHistory.hash}`,
-      otpHistory.user.id.toString(),
+      `otp_session:${user.sub}:${user.hash}`,
+      user.sub.toString(),
       parseTimeToSeconds(this.envConfigService.get('JWT_EXPIRES_IN')),
     )
 
