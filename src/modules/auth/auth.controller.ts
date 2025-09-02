@@ -21,13 +21,12 @@ import { RegisterDto } from './dtos/register.dto'
 import { Public } from '../../common/decorators/public.decorator'
 import { OtpAuth } from '../../common/decorators/otp-auth.decorator'
 
-import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { LoginOtpChallengeResponseDto } from './dtos/login-otp-challenge-response.dto'
 import { TaskType } from '@/common/enums/task-type.enum'
 import { GetCurrentUserOtp } from '@/common/decorators/get-current-user-otp.decorator'
 import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
 import { AuthLoginValidateResponseDto } from './dtos/auth-login-validate-response.dto'
-import { ValidateOtpDto } from '../otp/dto/validate-otp.dto'
+import { AuthValidateOtpDto } from './dtos/auth-validate-otp.dto'
 
 @ApiTags('Autenticação')
 @ApiBearerAuth('Bearer')
@@ -119,16 +118,16 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'OTP validado com sucesso, token de acesso gerado',
-    type: AuthLoginResponseDto,
+    type: AuthLoginValidateResponseDto,
   })
   @ApiResponse({
     status: 401,
     description: 'Token JWT inválido ou expirado',
   })
   async validateOtp(
-    @Body() validateOtpDto: ValidateOtpDto,
+    @Body() authValidateOtpDto: AuthValidateOtpDto,
     @GetCurrentUserOtp() userOtp: JwtOtpPayload,
   ): Promise<AuthLoginValidateResponseDto> {
-    return this.authService.validate(validateOtpDto, userOtp)
+    return this.authService.validate(authValidateOtpDto, userOtp)
   }
 }
