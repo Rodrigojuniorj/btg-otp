@@ -23,6 +23,17 @@ export class UserOtpHistoryService {
   }
 
   async create(userId: number): Promise<CreateUserOtpHistoryResponseDto> {
+    const existingOtp = await this.findByUserId(userId)
+
+    if (existingOtp && existingOtp.expiresAt > new Date()) {
+      throw new CustomException(
+        ErrorMessages.USER_OTP_HISTORY.OTP_ALREADY_ACTIVE(),
+        HttpStatus.CONFLICT,
+      )
+    }
+
+    await this.expireOldOtps(userId)
+
     const otpCode = generateOtpCode(this.envConfigService.get('OTP_LENGTH'))
     const hash = generateUniqueHash()
     const expiresAt = new Date(
@@ -57,6 +68,10 @@ export class UserOtpHistoryService {
     return await this.userOtpHistoryRepository.findPendingByUserId(userId)
   }
 
+  async findByUserId(userId: number) {
+    return await this.userOtpHistoryRepository.findByUserId(userId)
+  }
+
   async validateOtp(
     validateOtpDto: ValidateOtpDto,
     hash: string,
@@ -84,6 +99,19 @@ export class UserOtpHistoryService {
       )
     }
 
+    const maxAttempts = this.envConfigService.get('OTP_MAX_ATTEMPTS')
+    if (otpHistory.attempts >= maxAttempts) {
+      await this.userOtpHistoryRepository.updateStatus(
+        otpHistory.id,
+        UserOTPHistoryStatus.EXPIRED,
+      )
+
+      throw new CustomException(
+        ErrorMessages.USER_OTP_HISTORY.MAX_ATTEMPTS_EXCEEDED(),
+        HttpStatus.UNAUTHORIZED,
+      )
+    }
+
     if (otpHistory.status !== UserOTPHistoryStatus.PENDING) {
       throw new CustomException(
         ErrorMessages.USER_OTP_HISTORY.OTP_USED(),
@@ -93,6 +121,20 @@ export class UserOtpHistoryService {
 
     if (otpHistory.otpCode !== otpCode) {
       await this.userOtpHistoryRepository.incrementAttempts(otpHistory.id)
+
+      const newAttempts = otpHistory.attempts + 1
+      if (newAttempts >= maxAttempts) {
+        await this.userOtpHistoryRepository.updateStatus(
+          otpHistory.id,
+          UserOTPHistoryStatus.EXPIRED,
+        )
+
+        throw new CustomException(
+          ErrorMessages.USER_OTP_HISTORY.MAX_ATTEMPTS_EXCEEDED(),
+          HttpStatus.UNAUTHORIZED,
+        )
+      }
+
       throw new CustomException(
         ErrorMessages.USER_OTP_HISTORY.INVALID_OTP_CODE(),
         HttpStatus.UNAUTHORIZED,

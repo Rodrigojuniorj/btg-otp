@@ -27,6 +27,7 @@ export const envSchema = z
     SERVER_URL: z.string(),
     OTP_MINUTE_DURATION: z.coerce.number().min(1).max(10).optional().default(5),
     OTP_LENGTH: z.coerce.number().min(2).max(10).optional().default(6),
+    OTP_MAX_ATTEMPTS: z.coerce.number().min(1).max(10).optional().default(3),
     JWT_OTP_SECRET: z.string(),
   })
   .transform((env) => ({
