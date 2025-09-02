@@ -6,6 +6,26 @@ import { Otp } from '../../modules/otp/entities/otp.entity'
 export const databaseConfig = (
   envConfigService: EnvConfigService,
 ): TypeOrmModuleOptions => {
+  const nodeEnv = process.env.NODE_ENV || envConfigService.get('NODE_ENV')
+
+  if (nodeEnv === 'test') {
+    // Para testes e2e, usar SQLite em memória com configuração otimizada
+    return {
+      type: 'sqlite',
+      database: ':memory:',
+      entities: [User, Otp],
+      synchronize: true,
+      dropSchema: true,
+      migrationsRun: false,
+      logging: false,
+      // Configurações para compatibilidade com SQLite
+      extra: {
+        // Permitir que TypeORM mapeie enums para strings
+        enumAsString: true,
+      },
+    }
+  }
+
   return {
     type: 'postgres',
     host: envConfigService.get('DB_HOST'),

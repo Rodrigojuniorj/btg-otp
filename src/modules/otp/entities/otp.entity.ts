@@ -7,6 +7,7 @@ import {
   Index,
 } from 'typeorm'
 import { OtpPurpose, OtpStatus } from '../enums/otp.enum'
+import { columnDate } from '../../../common/db/column-date.util'
 
 @Entity('otps')
 export class Otp {
@@ -23,24 +24,24 @@ export class Otp {
   @Column({ type: 'varchar', length: 100, nullable: true })
   identifier: string
 
-  @Column({ type: 'enum', enum: OtpPurpose })
+  @Column({ type: 'simple-enum', enum: OtpPurpose })
   purpose: OtpPurpose
 
-  @Column({ type: 'enum', enum: OtpStatus, default: OtpStatus.PENDING })
+  @Column({ type: 'simple-enum', enum: OtpStatus, default: OtpStatus.PENDING })
   status: OtpStatus
 
   @Column({ type: 'int', default: 0 })
   attempts: number
 
-  @Column({ type: 'timestamp' })
+  @Column(columnDate({ name: 'expires_at' }))
   expiresAt: Date
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column(columnDate({ nullable: true, name: 'validated_at' }))
   validatedAt: Date
 
-  @CreateDateColumn()
+  @CreateDateColumn(columnDate({ name: 'created_at' }))
   createdAt: Date
 
-  @UpdateDateColumn()
+  @UpdateDateColumn(columnDate({ name: 'updated_at' }))
   updatedAt: Date
 }

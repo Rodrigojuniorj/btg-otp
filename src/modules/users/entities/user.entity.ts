@@ -1,3 +1,4 @@
+import { columnDate } from '../../../common/db/column-date.util'
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -20,9 +21,9 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   password: string
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn(columnDate({ name: 'created_at' }))
   createdAt: Date
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn(columnDate({ name: 'updated_at' }))
   updatedAt: Date
 }
