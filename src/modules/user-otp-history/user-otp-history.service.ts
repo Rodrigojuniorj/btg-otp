@@ -64,8 +64,7 @@ export class UserOtpHistoryService {
     const { otpCode } = validateOtpDto
 
     const otpHistory = await this.userOtpHistoryRepository.findByHash(hash)
-    console.log('hash', hash)
-    console.log('otpHistory', otpHistory)
+
     if (!otpHistory) {
       throw new CustomException(
         ErrorMessages.USER_OTP_HISTORY.INVALID_OTP(),
