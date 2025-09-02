@@ -9,8 +9,8 @@ import { DatabaseModule } from './config/database/database.module'
 import { EnvConfigService } from './common/service/env/env-config.service'
 import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard'
 import { BullModule } from '@nestjs/bullmq'
-import { UserOtpHistoryModule } from './modules/user-otp-history/user-otp-history.module'
 import { UsersModule } from './modules/users/users.module'
+import { OtpModule } from './modules/otp/otp.module'
 import { JwtModule } from '@nestjs/jwt'
 import { CacheModule } from './providers/cache/cache.module'
 
@@ -58,7 +58,7 @@ import { CacheModule } from './providers/cache/cache.module'
     EnvConfigModule,
     DatabaseModule,
     UsersModule,
-    UserOtpHistoryModule,
+    OtpModule,
     AuthModule,
   ],
   controllers: [AppController],

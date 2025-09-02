@@ -21,12 +21,13 @@ import { RegisterDto } from './dtos/register.dto'
 import { Public } from '../../common/decorators/public.decorator'
 import { OtpAuth } from '../../common/decorators/otp-auth.decorator'
 
-import { ValidateOtpDto } from '../user-otp-history/dto/validate-otp.dto'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { LoginOtpChallengeResponseDto } from './dtos/login-otp-challenge-response.dto'
 import { TaskType } from '@/common/enums/task-type.enum'
 import { GetCurrentUserOtp } from '@/common/decorators/get-current-user-otp.decorator'
 import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
+import { AuthLoginValidateResponseDto } from './dtos/auth-login-validate-response.dto'
+import { ValidateOtpDto } from '../otp/dto/validate-otp.dto'
 
 @ApiTags('Autenticação')
 @ApiBearerAuth('Bearer')
@@ -127,7 +128,7 @@ export class AuthController {
   async validateOtp(
     @Body() validateOtpDto: ValidateOtpDto,
     @GetCurrentUserOtp() userOtp: JwtOtpPayload,
-  ): Promise<AuthLoginResponseDto> {
+  ): Promise<AuthLoginValidateResponseDto> {
     return this.authService.validate(validateOtpDto, userOtp)
   }
 }

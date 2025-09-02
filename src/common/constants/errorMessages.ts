@@ -17,6 +17,17 @@ export const ErrorMessages = {
     OTP_ALREADY_ACTIVE: () =>
       'Já existe um OTP ativo, expirado ou bloqueado. Aguarde o tempo de expiração.',
   },
+  OTP: {
+    OTP_CREATE: () => 'É necessário fornecer um email',
+    INVALID_OTP: () => 'OTP inválido',
+    OTP_EXPIRED: () => 'OTP expirado',
+    OTP_USED: () => 'OTP já foi utilizado',
+    INVALID_OTP_CODE: () => 'Código OTP inválido',
+    MAX_ATTEMPTS_EXCEEDED: () =>
+      'Número máximo de tentativas excedido. OTP bloqueado.',
+    OTP_ALREADY_ACTIVE: () =>
+      'Já existe um OTP ativo, expirado ou bloqueado. Aguarde o tempo de expiração.',
+  },
   CUSTOMER: {
     NOT_FOUND_DOCUMENT: (document: string) =>
       `Cliente com documento ${document} não encontrado`,

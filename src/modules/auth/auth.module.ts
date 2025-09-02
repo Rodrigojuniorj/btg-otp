@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller'
 import { JwtStrategy } from '../../common/strategies/jwt.strategy'
 import { EnvConfigModule } from '../../common/service/env/env-config.module'
 import { UsersModule } from '../users/users.module'
-import { UserOtpHistoryModule } from '../user-otp-history/user-otp-history.module'
+import { OtpModule } from '../otp/otp.module'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { JwtService } from '@nestjs/jwt'
 import { CacheModule } from '@/providers/cache/cache.module'
@@ -16,7 +16,7 @@ import { EmailProviderModule } from '@/providers/email/email.provider.module'
     PassportModule,
     EnvConfigModule,
     UsersModule,
-    UserOtpHistoryModule,
+    OtpModule,
     CacheModule,
     EmailProviderModule,
   ],
