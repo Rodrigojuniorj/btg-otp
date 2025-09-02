@@ -16,7 +16,7 @@ import { parseTimeToSeconds } from '@/common/utils/parse-time-to-seconds.util'
 import { OtpService } from '../otp/otp.service'
 import { OtpPurpose } from '../otp/enums/otp.enum'
 import { AuthLoginValidateResponseDto } from './dtos/auth-login-validate-response.dto'
-import { ValidateOtpDto } from '../otp/dto/validate-otp.dto'
+import { AuthValidateOtpDto } from './dtos/auth-validate-otp.dto'
 
 @Injectable()
 export class AuthService {
@@ -113,7 +113,7 @@ export class AuthService {
   }
 
   async validate(
-    validateOtpDto: ValidateOtpDto,
+    authValidateOtpDto: AuthValidateOtpDto,
     user: JwtOtpPayload,
   ): Promise<AuthLoginValidateResponseDto> {
     const isSessionValid = await this.cache.get(
@@ -124,7 +124,7 @@ export class AuthService {
     }
 
     await this.otpService.validateOtp({
-      otpCode: validateOtpDto.otpCode,
+      otpCode: authValidateOtpDto.otpCode,
       hash: user.hash,
     })
 
