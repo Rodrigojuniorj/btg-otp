@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm'
 import { config } from 'dotenv'
 import { User } from '../../modules/users/entities/user.entity'
-import { UserOtpHistory } from '../../modules/user-otp-history/entities/user-otp-history.entity'
+import { Otp } from '../../modules/otp/entities/otp.entity'
 
 config()
 
@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'postgres',
   schema: process.env.DB_SCHEMA || 'public',
-  entities: [User, UserOtpHistory],
+  entities: [User, Otp],
   migrations:
     process.env.NODE_ENV === 'production'
       ? ['dist/src/migrations/*.js']

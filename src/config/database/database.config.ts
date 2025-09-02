@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { User } from '../../modules/users/entities/user.entity'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
-import { UserOtpHistory } from '../../modules/user-otp-history/entities/user-otp-history.entity'
+import { Otp } from '../../modules/otp/entities/otp.entity'
 
 export const databaseConfig = (
   envConfigService: EnvConfigService,
@@ -14,7 +14,7 @@ export const databaseConfig = (
     password: envConfigService.get('DB_PASSWORD'),
     database: envConfigService.get('DB_DATABASE'),
     schema: envConfigService.get('DB_SCHEMA'),
-    entities: [User, UserOtpHistory],
+    entities: [User, Otp],
     migrations: ['dist/migrations/*.js'],
     migrationsRun: true,
     synchronize: false,
