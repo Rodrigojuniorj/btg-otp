@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Not, Repository } from 'typeorm'
 import { UserOtpHistoryRepositoryPort } from './port/user-otp-history.repository.port'
 import { UserOtpHistory } from '../entities/user-otp-history.entity'
 import { CreateUserOtpHistoryDto } from '../dto/create-user-otp-history.dto'
@@ -60,9 +60,19 @@ export class UserOtpHistoryRepository extends UserOtpHistoryRepositoryPort {
     })
   }
 
+  async findByUserId(userId: number): Promise<UserOtpHistoryDto | null> {
+    return this.repository.findOne({
+      where: { userId, status: Not(UserOTPHistoryStatus.VALIDATED) },
+      order: { expiresAt: 'DESC' },
+    })
+  }
+
   async expireOldOtps(userId: number): Promise<void> {
     await this.repository.update(
-      { userId, status: UserOTPHistoryStatus.PENDING },
+      {
+        userId,
+        status: UserOTPHistoryStatus.PENDING,
+      },
       { status: UserOTPHistoryStatus.EXPIRED },
     )
   }

@@ -17,5 +17,7 @@ export abstract class UserOtpHistoryRepositoryPort {
     userId: number,
   ): Promise<UserOtpHistoryDto | null>
 
+  abstract findByUserId(userId: number): Promise<UserOtpHistoryDto | null>
+
   abstract expireOldOtps(userId: number): Promise<void>
 }

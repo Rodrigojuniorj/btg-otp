@@ -64,12 +64,10 @@ export class AuthService {
   async login(email: string, password: string): Promise<LoginOtpResponseDto> {
     const user = await this.validateUser(email, password)
 
-    await this.userOtpHistoryService.expireOldOtps(user.id)
-
-    await this.cache.invalidateCache(`otp_session:${user.id}:*`)
-
     const { hash, expiresAt, otpCode } =
       await this.userOtpHistoryService.create(user.id)
+
+    await this.cache.invalidateCache(`otp_session:${user.id}:*`)
 
     const ttlSeconds = Math.floor((expiresAt.getTime() - Date.now()) / 1000)
 
