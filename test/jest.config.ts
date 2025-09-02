@@ -3,7 +3,7 @@ import type { Config } from 'jest'
 const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  rootDir: '.',
+  rootDir: '..',
   verbose: true,
   clearMocks: true,
   restoreMocks: true,
@@ -14,8 +14,16 @@ const config: Config = {
   testRegex: '.*\\.spec\\.ts$',
 
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.json',
+        useESM: false,
+      },
+    ],
   },
+
+  transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
 
   collectCoverageFrom: [
     'src/**/*.(t|j)s',
@@ -52,6 +60,7 @@ const config: Config = {
     '/dist/',
     '/test/',
     '.module.ts$',
+    '.e2e-spec.ts$',
     '.dto.ts$',
     '.entity.ts$',
     'main.ts$',
@@ -67,6 +76,7 @@ const config: Config = {
     'src/common/exceptions',
     'src/common/service',
     'src/common/guards/jwt-auth.guard.ts',
+    'column-date.util.ts',
   ],
 
   moduleNameMapper: {
