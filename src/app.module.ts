@@ -12,6 +12,7 @@ import { BullModule } from '@nestjs/bullmq'
 import { UserOtpHistoryModule } from './modules/user-otp-history/user-otp-history.module'
 import { UsersModule } from './modules/users/users.module'
 import { JwtModule } from '@nestjs/jwt'
+import { CacheModule } from './providers/cache/cache.module'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JwtModule } from '@nestjs/jwt'
       cache: true,
       expandVariables: true,
     }),
+    CacheModule,
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService<Env, true>) => ({
@@ -54,10 +56,10 @@ import { JwtModule } from '@nestjs/jwt'
       inject: [ConfigService],
     }),
     EnvConfigModule,
-    AuthModule,
     DatabaseModule,
     UsersModule,
     UserOtpHistoryModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

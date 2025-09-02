@@ -11,9 +11,11 @@ import { UserOtpHistoryService } from '../user-otp-history/user-otp-history.serv
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { LoginOtpResponseDto } from '../user-otp-history/dto/login-otp-response.dto'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
+import { CacheRepository } from '@/providers/cache/cache-repository'
 import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
-import { EmailTemplatesService } from '@/providers/email/templates/email-templates.service'
+import { EmailTemplatesService } from '@/providers/email/templates'
+import { parseTimeToSeconds } from '@/common/utils/parse-time-to-seconds.util'
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userOtpHistoryService: UserOtpHistoryService,
     private readonly envConfigService: EnvConfigService,
+    private readonly cache: CacheRepository,
     private readonly sendEmailQueueProvider: SendEmailQueueProvider,
     private readonly emailTemplatesService: EmailTemplatesService,
   ) {}
@@ -63,8 +66,18 @@ export class AuthService {
 
     await this.userOtpHistoryService.expireOldOtps(user.id)
 
+    await this.cache.invalidateCache(`otp_session:${user.id}:*`)
+
     const { hash, expiresAt, otpCode } =
       await this.userOtpHistoryService.create(user.id)
+
+    const ttlSeconds = Math.floor((expiresAt.getTime() - Date.now()) / 1000)
+
+    await this.cache.set(
+      `otp_session:${user.id}:${hash}`,
+      user.id.toString(),
+      ttlSeconds,
+    )
 
     const otpToken = this.jwtService.sign(
       {
@@ -93,6 +106,7 @@ export class AuthService {
     })
 
     return {
+      hash,
       accessToken: otpToken,
       validationUrl: `/auth/validate-otp/${hash}`,
     }
@@ -100,29 +114,43 @@ export class AuthService {
 
   async validate(
     validateOtpDto: ValidateOtpDto,
-    userOtp: JwtOtpPayload,
+    user: JwtOtpPayload,
   ): Promise<AuthLoginResponseDto> {
-    const otpHistory = await this.userOtpHistoryService.validateOtp(
-      {
-        otpCode: validateOtpDto.otpCode,
-      },
-      userOtp.hash,
+    const isSessionValid = await this.cache.get(
+      `otp_session:${user.sub}:${user.hash}`,
     )
-
-    if (otpHistory.userId !== userOtp.sub) {
+    if (!isSessionValid || isSessionValid !== user.sub.toString()) {
       throw new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS())
     }
+
+    const otpHistory = await this.userOtpHistoryService.validateOtp(
+      { otpCode: validateOtpDto.otpCode },
+      user.hash,
+    )
+
+    if (otpHistory.userId !== user.sub) {
+      throw new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS())
+    }
+
+    await this.cache.delete(`otp_session:${user.hash}`)
 
     const accessToken = this.jwtService.sign(
       {
         sub: otpHistory.user.id,
         email: otpHistory.user.email,
         type: 'access',
+        hash: otpHistory.hash,
       },
       {
         expiresIn: this.envConfigService.get('JWT_EXPIRES_IN'),
         secret: this.envConfigService.get('JWT_SECRET'),
       },
+    )
+
+    await this.cache.set(
+      `otp_session:${otpHistory.user.id}:${otpHistory.hash}`,
+      otpHistory.user.id.toString(),
+      parseTimeToSeconds(this.envConfigService.get('JWT_EXPIRES_IN')),
     )
 
     return {
