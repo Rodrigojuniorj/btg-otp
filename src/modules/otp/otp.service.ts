@@ -94,7 +94,7 @@ export class OtpService {
       )
     }
 
-    if (otp.attempts >= this.envConfigService.get('OTP_MAX_ATTEMPTS')) {
+    if (otp.attempts > this.envConfigService.get('OTP_MAX_ATTEMPTS')) {
       await this.otpRepository.updateStatus(otp.id, OtpStatus.FAILED)
       throw new CustomException(
         ErrorMessages.OTP.MAX_ATTEMPTS_EXCEEDED(),

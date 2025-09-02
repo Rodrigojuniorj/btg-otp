@@ -1,4 +1,4 @@
-import { IsOptional, IsEmail, IsEnum, IsNotEmpty } from 'class-validator'
+import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { OtpPurpose } from '../enums/otp.enum'
 
@@ -8,9 +8,9 @@ export class CreateOtpDto {
     example: 'usuario@exemplo.com',
     type: String,
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsEmail()
-  email?: string
+  email: string
 
   @ApiPropertyOptional({
     description: 'Propósito do OTP',
