@@ -1,0 +1,34 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator'
+
+export class UpdateUserDto {
+  @ApiProperty({
+    description: 'Nome completo do usuário',
+    example: 'João Silva Santos',
+    maxLength: 100,
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Nome deve ser uma string' })
+  @MaxLength(100, { message: 'Nome deve ter no máximo 100 caracteres' })
+  name?: string
+
+  @ApiProperty({
+    description: 'Email único do usuário',
+    example: 'joao.silva@example.com',
+    format: 'email',
+    required: false,
+  })
+  @IsOptional()
+  @IsEmail({}, { message: 'Email deve ter um formato válido' })
+  email?: string
+
+  @ApiProperty({
+    description: 'Senha do usuário (hash)',
+    example: '$2b$10$...',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Password deve ser uma string' })
+  password?: string
+}

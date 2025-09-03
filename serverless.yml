@@ -1,0 +1,72 @@
+service: btg-otp-api
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  architecture: arm64
+  region: sa-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 128
+  timeout: 30
+  environment:
+    NODE_ENV: production
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_DATABASE: ${env:DB_DATABASE}
+    DB_SCHEMA: ${env:DB_SCHEMA}
+    JWT_SECRET: ${env:JWT_SECRET}
+    JWT_EXPIRES_IN: ${env:JWT_EXPIRES_IN}
+    DOCUMENTATION_PREFIX: ${env:DOCUMENTATION_PREFIX}
+    SMTP_HOST: ${env:SMTP_HOST}
+    PORT_EMAIL: ${env:PORT_EMAIL}
+    SECURE_EMAIL: ${env:SECURE_EMAIL}
+    USER_EMAIL: ${env:USER_EMAIL}
+    PASS_EMAIL: ${env:PASS_EMAIL}
+    REDIS_HOST: ${env:REDIS_HOST}
+    REDIS_PORT: ${env:REDIS_PORT}
+    REDIS_DB: ${env:REDIS_DB}
+    REDIS_PASSWORD: ${env:REDIS_PASSWORD}
+    SERVER_URL: ${env:SERVER_URL}
+    OTP_MINUTE_DURATION: ${env:OTP_MINUTE_DURATION}
+    OTP_LENGTH: ${env:OTP_LENGTH}
+    OTP_MAX_ATTEMPTS: ${env:OTP_MAX_ATTEMPTS}
+    JWT_OTP_SECRET: ${env:JWT_OTP_SECRET}
+    SERVERLESS_ACCESS_KEY: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJZCI6IjczY2FkMjViLThlNTYtNDAyZi04ZmFjLTRiMTA3NWMxOTA5ZCIsImlhdCI6MTc1NjkyNDQ3MSwiZXhwIjoxNzg4NDYwNDcxLCJpc3MiOiJhcHAuc2VydmVybGVzcy5jb20ifQ.gCMOSprABvErARuFlAJjjDlCWfarFfXlJrkua73XCKyqcySiifyzMnDmEX-KDX4R-YNoJdenAL7YZ8yoZwGn1WTTL6NJdENbNLJ5K301laxQZURRDl_B7zMGaqdjfEcrhsnHUNjOvKcY8o7QYdRMVca587QgkYN2cgkwQTF4P1ZA_sxAuTQmZ-b1mJxcvXqy_wA4-96XB7R5vgQGtPlt0HPWqZt-KrGYtVGBMgZb3TVRSbCfZ20cARky9mfgv9Z7-rvzk7qmQY79w2N5LW51D4V3-NGOMmrl-Q2XoVwzWDO_6s0gruQvwAXQl3105s-foQRO2SND8g_c-hq135lkcA
+
+functions:
+  main:
+    handler: dist/lambda.handler
+    events:
+      - httpApi:
+          path: /{any+}
+          method: any
+
+plugins:
+  - serverless-jetpack
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3333
+    noPrependStageInUrl: true
+
+package:
+  exclude:
+    - node_modules/aws-sdk/**
+    - tests/**
+    - docs/**
+    - coverage/**
+    - .git/**
+    - .github/**
+    - .serverless/**
+    - .vscode/**
+    - .env*
+    - .prettierrc
+    - .eslintrc
+    - .eslintignore
+    - .prettierignore
+    - .prettierignore

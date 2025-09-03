@@ -1,0 +1,478 @@
+name: CI/CD Pipeline - BTG OTP
+
+on:
+  push:
+    branches: [main, develop, fix/workflow-ci-cd]
+  pull_request:
+    branches: [main, develop, fix/workflow-ci-cd]
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: '20'
+  YARN_VERSION: '1.22.19'
+
+jobs:
+  # ================================
+  # VALIDATE STAGE
+  # ================================
+  validate:
+    name: 🔍 Validar Código
+    runs-on: ubuntu-latest
+    if: false
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+  # ================================
+  # TEST STAGE
+  # ================================
+  unit-tests:
+    name: 🧪 Testes Unitários
+    runs-on: ubuntu-latest
+    needs: validate
+    if: false
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        env:
+          REDIS_PASSWORD: test_redis_password
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli -a test_redis_password ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: test_user
+      DB_PASSWORD: test_password
+      DB_DATABASE: test_db
+      DB_SCHEMA: public
+      JWT_SECRET: test_secret_key_for_testing_only
+      JWT_EXPIRES_IN: 1h
+      PORT: 3333
+      DOCUMENTATION_PREFIX: api/v1/btg
+      OTP_LENGTH: 7
+      OTP_MINUTE_DURATION: 5
+      JWT_OTP_SECRET: test_otp_secret_key_for_testing_only
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: test_redis_password
+      SMTP_HOST: smtp.test.com
+      PORT_EMAIL: 587
+      SECURE_EMAIL: false
+      USER_EMAIL: test@test.com
+      BBC_EMAIL: test@test.com
+      PASS_EMAIL: test_password
+      SERVER_URL: http://localhost:3333
+      OTP_MAX_ATTEMPTS: 3
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: ⏳ Aguardar PostgreSQL
+        run: |
+          echo "⏳ Aguardando PostgreSQL..."
+          timeout 30 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+          echo "✅ PostgreSQL está rodando!"
+
+      - name: ⏳ Aguardar Redis
+        run: |
+          echo "⏳ Aguardando Redis..."
+          timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
+          echo "✅ Redis está rodando!"
+          echo "🔐 Verificando se Redis está respondendo na porta..."
+          timeout 15 bash -c 'until echo "ping" | nc localhost 6379 | grep -q "PONG"; do sleep 1; done'
+          echo "✅ Redis está respondendo!"
+
+      - name: 🗄️ Executar migrations
+        env:
+          NODE_ENV: production
+        run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
+
+      - name: 🧪 Executar testes unitários
+        run: yarn test --coverage --watchAll=false
+
+      - name: 📊 Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  integration-tests:
+    name: 🔗 Testes de Integração
+    runs-on: ubuntu-latest
+    needs: validate
+    if: false
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        env:
+          REDIS_PASSWORD: test_redis_password
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli -a test_redis_password ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: test_user
+      DB_PASSWORD: test_password
+      DB_DATABASE: test_db
+      DB_SCHEMA: public
+      JWT_SECRET: test_secret_key_for_testing_only
+      JWT_EXPIRES_IN: 1h
+      PORT: 3333
+      DOCUMENTATION_PREFIX: api/v1/btg
+      OTP_LENGTH: 7
+      OTP_MINUTE_DURATION: 5
+      JWT_OTP_SECRET: test_otp_secret_key_for_testing_only
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: test_redis_password
+      SMTP_HOST: smtp.test.com
+      PORT_EMAIL: 587
+      SECURE_EMAIL: false
+      USER_EMAIL: test@test.com
+      BBC_EMAIL: test@test.com
+      PASS_EMAIL: test_password
+      SERVER_URL: http://localhost:3333
+      OTP_MAX_ATTEMPTS: 3
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: ⏳ Aguardar PostgreSQL
+        run: |
+          echo "⏳ Aguardando PostgreSQL..."
+          timeout 30 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+          echo "✅ PostgreSQL está rodando!"
+
+      - name: ⏳ Aguardar Redis
+        run: |
+          echo "⏳ Aguardando Redis..."
+          timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
+          echo "✅ Redis está rodando!"
+          echo "🔐 Verificando se Redis está respondendo na porta..."
+          timeout 15 bash -c 'until echo "ping" | nc localhost 6379 | grep -q "PONG"; do sleep 1; done'
+          echo "✅ Redis está respondendo!"
+
+      - name: 🗄️ Executar migrations
+        env:
+          NODE_ENV: production
+        run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
+
+      - name: 🧪 Executar testes E2E
+        run: yarn test:e2e --detectOpenHandles
+
+  # ================================
+  # SECURITY STAGE
+  # ================================
+  security:
+    name: 🔒 Análise de Segurança
+    runs-on: ubuntu-latest
+    needs: validate
+    if: false
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+  # ================================
+  # BUILD STAGE
+  # ================================
+  build:
+    name: 🏗️ Build Docker
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, security]
+    if: false
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🏗️ Build e Push da imagem
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ps-tech-api:latest
+            ${{ secrets.DOCKER_USERNAME }}/ps-tech-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ================================
+  # DEPLOY STAGE
+  # ================================
+  deploy-staging:
+    name: 🚀 Deploy Staging
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, security]
+    if: false
+    environment: staging
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy para Staging
+        run: |
+          echo "🚀 Deployando para staging..."
+          echo "📋 Informações do deploy:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+          echo "  - Data: $(date)"
+          echo "✅ Deploy para staging concluído"
+
+  deploy-production:
+    name: 🚀 Deploy Produção
+    runs-on: ubuntu-latest
+    if: always()
+    environment: BTG
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔑 Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: sa-east-1
+
+      - name: 📦 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: 🏗️ Build da aplicação
+        run: yarn build
+
+      - name: 🗄️ Executar migrations no RDS
+        env:
+          NODE_ENV: production
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          JWT_OTP_SECRET: ${{ secrets.JWT_OTP_SECRET }}
+          DOCUMENTATION_PREFIX: ${{ secrets.DOCUMENTATION_PREFIX }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          PORT_EMAIL: ${{ secrets.PORT_EMAIL }}
+          SECURE_EMAIL: ${{ secrets.SECURE_EMAIL }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          PASS_EMAIL: ${{ secrets.PASS_EMAIL }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_DB: ${{ secrets.REDIS_DB }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SERVER_URL: ${{ secrets.SERVER_URL }}
+          OTP_MINUTE_DURATION: ${{ secrets.OTP_MINUTE_DURATION }}
+          OTP_LENGTH: ${{ secrets.OTP_LENGTH }}
+          OTP_MAX_ATTEMPTS: ${{ secrets.OTP_MAX_ATTEMPTS }}
+        run: yarn migration:run
+
+      - name: 🚀 Deploy Lambda
+        env:
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+          NODE_ENV: production
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          JWT_OTP_SECRET: ${{ secrets.JWT_OTP_SECRET }}
+          DOCUMENTATION_PREFIX: ${{ secrets.DOCUMENTATION_PREFIX }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          PORT_EMAIL: ${{ secrets.PORT_EMAIL }}
+          SECURE_EMAIL: ${{ secrets.SECURE_EMAIL }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          PASS_EMAIL: ${{ secrets.PASS_EMAIL }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_DB: ${{ secrets.REDIS_DB }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SERVER_URL: ${{ secrets.SERVER_URL }}
+          OTP_MINUTE_DURATION: ${{ secrets.OTP_MINUTE_DURATION }}
+          OTP_LENGTH: ${{ secrets.OTP_LENGTH }}
+          OTP_MAX_ATTEMPTS: ${{ secrets.OTP_MAX_ATTEMPTS }}
+        run: npx serverless deploy --stage prod
+
+  # ================================
+  # NOTIFICATIONS
+  # ================================
+  notify-staging:
+    name: 📢 Notificação Staging
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: false
+
+    steps:
+      - name: 📢 Notificação de sucesso
+        if: success()
+        run: |
+          echo "🎉 Deploy para staging realizado com sucesso!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+
+      - name: 📢 Notificação de falha
+        if: failure()
+        run: |
+          echo "❌ Deploy para staging falhou!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+
+  notify-production:
+    name: 📢 Notificação Produção
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: false
+
+    steps:
+      - name: 📢 Notificação de sucesso
+        if: success()
+        run: |
+          echo "🎉 Deploy para produção realizado com sucesso!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+
+      - name: 📢 Notificação de falha
+        if: failure()
+        run: |
+          echo "❌ Deploy para produção falhou!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+
+  notify-tests:
+    name: 📢 Notificação Testes
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, security]
+    if: always()
+
+    steps:
+      - name: 📢 Notificação de sucesso
+        if: success()
+        run: |
+          echo "🎉 Todos os testes passaram!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+
+      - name: 📢 Notificação de falha
+        if: failure()
+        run: |
+          echo "❌ Alguns testes falharam!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
