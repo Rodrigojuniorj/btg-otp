@@ -120,8 +120,8 @@ jobs:
           echo "⏳ Aguardando Redis..."
           timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
           echo "✅ Redis está rodando!"
-          echo "🔐 Testando conexão com Redis..."
-          timeout 10 bash -c 'until redis-cli -a test_redis_password ping; do sleep 1; done'
+          echo "🔐 Verificando se Redis está respondendo na porta..."
+          timeout 10 bash -c 'until echo "ping" | nc localhost 6379; do sleep 1; done'
           echo "✅ Redis está respondendo!"
 
       - name: 🗄️ Executar migrations
@@ -223,8 +223,8 @@ jobs:
           echo "⏳ Aguardando Redis..."
           timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
           echo "✅ Redis está rodando!"
-          echo "🔐 Testando conexão com Redis..."
-          timeout 10 bash -c 'until redis-cli -a test_redis_password ping; do sleep 1; done'
+          echo "🔐 Verificando se Redis está respondendo na porta..."
+          timeout 10 bash -c 'until echo "ping" | nc localhost 6379; do sleep 1; done'
           echo "✅ Redis está respondendo!"
 
       - name: 🗄️ Executar migrations
