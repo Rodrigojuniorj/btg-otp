@@ -6,9 +6,9 @@ import helmet from 'helmet'
 import { ValidationPipe } from '@nestjs/common'
 import * as crypto from 'crypto'
 
-// Polyfill para crypto no ambiente Lambda
 if (typeof global.crypto === 'undefined') {
-  global.crypto = crypto as typeof global.crypto
+  // @ts-expect-error - crypto polyfill for Lambda
+  global.crypto = crypto
 }
 
 let cachedServer
