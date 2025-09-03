@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
   entities: [User, Otp],
   migrations:
     process.env.NODE_ENV === 'production'
-      ? ['dist/src/migrations/*.js']
+      ? ['dist/migrations/*.js']
       : ['src/migrations/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',

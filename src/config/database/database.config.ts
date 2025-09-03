@@ -9,7 +9,6 @@ export const databaseConfig = (
   const nodeEnv = process.env.NODE_ENV || envConfigService.get('NODE_ENV')
 
   if (nodeEnv === 'test') {
-    // Para testes e2e, usar SQLite em memória com configuração otimizada
     return {
       type: 'sqlite',
       database: ':memory:',
@@ -18,9 +17,7 @@ export const databaseConfig = (
       dropSchema: true,
       migrationsRun: false,
       logging: false,
-      // Configurações para compatibilidade com SQLite
       extra: {
-        // Permitir que TypeORM mapeie enums para strings
         enumAsString: true,
       },
     }
