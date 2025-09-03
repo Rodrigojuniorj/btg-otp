@@ -52,7 +52,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test_user -d test_db"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -121,7 +121,7 @@ jobs:
           timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
           echo "✅ Redis está rodando!"
           echo "🔐 Verificando se Redis está respondendo na porta..."
-          timeout 10 bash -c 'until echo "ping" | nc localhost 6379; do sleep 1; done'
+          timeout 15 bash -c 'until echo "ping" | nc localhost 6379 | grep -q "PONG"; do sleep 1; done'
           echo "✅ Redis está respondendo!"
 
       - name: 🗄️ Executar migrations
@@ -155,7 +155,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test_user -d test_db"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -224,7 +224,7 @@ jobs:
           timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
           echo "✅ Redis está rodando!"
           echo "🔐 Verificando se Redis está respondendo na porta..."
-          timeout 10 bash -c 'until echo "ping" | nc localhost 6379; do sleep 1; done'
+          timeout 15 bash -c 'until echo "ping" | nc localhost 6379 | grep -q "PONG"; do sleep 1; done'
           echo "✅ Redis está respondendo!"
 
       - name: 🗄️ Executar migrations
