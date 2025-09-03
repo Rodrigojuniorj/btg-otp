@@ -1,0 +1,54 @@
+service: btg-otp-api
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  architecture: arm64
+  region: sa-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 128
+  timeout: 30
+  environment:
+    NODE_ENV: production
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_DATABASE: ${env:DB_DATABASE}
+    DB_SCHEMA: ${env:DB_SCHEMA}
+    JWT_SECRET: ${env:JWT_SECRET}
+    JWT_EXPIRES_IN: ${env:JWT_EXPIRES_IN}
+    DOCUMENTATION_PREFIX: ${env:DOCUMENTATION_PREFIX}
+    SMTP_HOST: ${env:SMTP_HOST}
+    PORT_EMAIL: ${env:PORT_EMAIL}
+    SECURE_EMAIL: ${env:SECURE_EMAIL}
+    USER_EMAIL: ${env:USER_EMAIL}
+    PASS_EMAIL: ${env:PASS_EMAIL}
+    REDIS_HOST: ${env:REDIS_HOST}
+    REDIS_PORT: ${env:REDIS_PORT}
+    REDIS_DB: ${env:REDIS_DB}
+    REDIS_PASSWORD: ${env:REDIS_PASSWORD}
+    SERVER_URL: ${env:SERVER_URL}
+    OTP_MINUTE_DURATION: ${env:OTP_MINUTE_DURATION}
+    OTP_LENGTH: ${env:OTP_LENGTH}
+    OTP_MAX_ATTEMPTS: ${env:OTP_MAX_ATTEMPTS}
+    JWT_OTP_SECRET: ${env:JWT_OTP_SECRET}
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: any
+
+plugins:
+  - serverless-jetpack
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3333
+    noPrependStageInUrl: true
