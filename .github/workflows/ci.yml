@@ -2,9 +2,9 @@ name: CI/CD Pipeline - BTG OTP
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, fix/workflow-ci-cd]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, fix/workflow-ci-cd]
   release:
     types: [published]
 
@@ -368,7 +368,7 @@ jobs:
           OTP_MINUTE_DURATION: ${{ secrets.OTP_MINUTE_DURATION }}
           OTP_LENGTH: ${{ secrets.OTP_LENGTH }}
           OTP_MAX_ATTEMPTS: ${{ secrets.OTP_MAX_ATTEMPTS }}
-        run: yarn typeorm migration:run -d dist/src/config/database/data-source.js
+        run: yarn migration:run
 
       - name: 🚀 Deploy Lambda
         env:
