@@ -1,31 +1,33 @@
 import { Injectable } from '@nestjs/common'
 import { CacheRepository } from '../cache-repository'
 import { RedisService } from './redis.service'
+import { Redis, Cluster } from 'ioredis'
 
 @Injectable()
 export class RedisCacheRepository implements CacheRepository {
-  constructor(private redis: RedisService) {}
+  private client: Redis | Cluster
+
+  constructor(private redis: RedisService) {
+    this.client = this.redis.getClient()
+  }
 
   async set(key: string, value: string, seconds = 900): Promise<void> {
-    // if (this.redis.getIsDevelopment()) {
-    //   return
-    // }
-    await this.redis.set(key, value, 'EX', seconds)
+    await this.client.set(key, value, 'EX', seconds)
   }
 
   async get(key: string): Promise<string | null> {
-    return await this.redis.get(key)
+    return await this.client.get(key)
   }
 
   async delete(key: string): Promise<void> {
-    await this.redis.del(key)
+    await this.client.del(key)
   }
 
   async scanKeys(pattern: string): Promise<string[]> {
     const keys: string[] = []
     let cursor = '0'
     do {
-      const result = await this.redis.scan(cursor, 'MATCH', pattern)
+      const result = await this.client.scan(cursor, 'MATCH', pattern)
       cursor = result[0]
       keys.push(...result[1])
     } while (cursor !== '0')
@@ -38,7 +40,7 @@ export class RedisCacheRepository implements CacheRepository {
   }
 
   async keys(pattern: string): Promise<string[]> {
-    return await this.redis.keys(pattern)
+    return await this.client.keys(pattern)
   }
 
   async invalidateCache(pattern: string): Promise<void> {
