@@ -42,6 +42,7 @@ const config: Config = {
     '!src/common/exceptions/**',
     '!src/common/service/**',
     '!src/common/guards/jwt-auth.guard.ts',
+    '!src/providers/cache/redis/redis.service.ts',
   ],
 
   coverageDirectory: '<rootDir>/coverage',

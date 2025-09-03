@@ -20,6 +20,7 @@ export const databaseConfig = (
       extra: {
         enumAsString: true,
       },
+      autoLoadEntities: true,
     }
   }
 

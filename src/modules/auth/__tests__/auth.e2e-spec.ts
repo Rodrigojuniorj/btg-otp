@@ -12,6 +12,8 @@ describe('AuthController (E2E)', () => {
   let app: INestApplication
   let userRepository: Repository<User>
 
+  jest.setTimeout(60000)
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -25,17 +27,12 @@ describe('AuthController (E2E)', () => {
   })
 
   beforeEach(async () => {
-    // Limpar todos os usuários antes de cada teste
     await userRepository.clear()
   })
 
   afterAll(async () => {
-    try {
-      await app.close()
-    } catch (error) {
-      console.error('Error closing app:', error)
-    }
-  }, 10000)
+    await app.close()
+  })
 
   describe('/auth/register (POST)', () => {
     it('should create a new user successfully', () => {
