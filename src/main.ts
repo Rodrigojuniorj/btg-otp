@@ -19,7 +19,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
-  app.setGlobalPrefix(envConfigService.get('DOCUMENTATION_PREFIX'))
+  const documentationPrefix = envConfigService.get('DOCUMENTATION_PREFIX')
+  app.setGlobalPrefix(documentationPrefix)
 
   app.use(helmet())
 
@@ -38,25 +39,15 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup(
-    envConfigService.get('DOCUMENTATION_PREFIX') + '/docs',
-    app,
-    document,
-    {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
+  SwaggerModule.setup(documentationPrefix + '/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
     },
-  )
+  })
 
-  app
-    .getHttpAdapter()
-    .get(
-      `${envConfigService.get('DOCUMENTATION_PREFIX')}/docs/json`,
-      (req, res) => {
-        res.send(document)
-      },
-    )
+  app.getHttpAdapter().get(`/${documentationPrefix}/docs/json`, (req, res) => {
+    res.send(document)
+  })
 
   await app.listen(envConfigService.get('PORT'))
 }

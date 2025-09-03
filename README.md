@@ -1,98 +1,145 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🔐 BTG OTP – API de Autenticação Segura com Token OTP
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 📌 Objetivo do Projeto
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Este projeto tem como propósito oferecer uma solução segura de autenticação e validação utilizando **códigos OTP (One-Time Password)**.  
+A API foi desenvolvida como um **MVP de back-end** com foco em:
 
-## Description
+- Emissão e validação de **códigos OTP**
+- Login protegido por **dupla autenticação (e-mail + OTP)**
+- Gestão de usuários e autenticação JWT
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🚀 Funcionalidades Principais
+
+### ✅ Health Check
+
+- Endpoint para verificar a saúde da aplicação.
+
+### 👤 Usuários
+
+- Consulta de perfil do usuário autenticado.
+
+### 🔑 Autenticação
+
+- **Registro de novos usuários** com senha criptografada.
+- **Login com e-mail e senha**, retornando um **desafio OTP** enviado por e-mail.
+- **Validação de OTP** com geração de **JWT de acesso** para uso nas rotas autenticadas.
+
+### 🧾 OTP (One-Time Password)
+
+- **Criação de OTP** associado a um identificador (ex.: e-mail).
+- **Validação de OTP** por código e hash.
+- **Consulta de status de OTP** (pendente, validado, expirado, falhou).
+
+---
+
+## 🔒 Segurança
+
+- Autenticação via **JWT** para todas as rotas protegidas.
+- Envio de OTP **via e-mail** com expiração configurada.
+- Validação robusta de dados de entrada.
+
+---
+
+## 🏗️ Tecnologias Utilizadas
+
+- **Node.js / NestJS**
+- **TypeScript**
+- **PostgreSQL**
+- **Jest** (testes unitários e e2e)
+- **JWT** (autenticação segura)
+- **Docker & Docker Compose** (orquestração de containers)
+
+---
+
+## 🛠️ Como Executar o Projeto com Docker Compose
+
+### Pré-requisitos
+
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+### Passos para execução com Docker
 
 ```bash
-$ yarn install
+# Clone o repositório
+git clone https://github.com/Rodrigojuniorj/btg-otp.git
+
+# Acesse a pasta
+cd btg-otp
+
+# Construa e inicie os containers
+docker-compose up -d --build
 ```
 
-## Compile and run the project
+A aplicação estará disponível em:  
+👉 `http://localhost:3333/api/v1/btg`
+
+Documentação Swagger:  
+👉 `http://localhost:3333/api/v1/btg/docs`
+
+Sendo a porta configurada pelo usuário na env assim como path da API.
+Aqui no Readme vou seguir com o path api/v1/btg, afim de exemplos
+
+```
+PORT=3333
+DOCUMENTATION_PREFIX=api/v1/btg
+```
+
+## 📖 Endpoints Principais
+
+### **Autenticação**
+
+- `POST /api/v1/btg/auth/register` → Criar novo usuário -> o email informado nessa rota será usado para disparar o token OTP no email.
+- `POST /api/v1/btg/auth/login` → Realizar login e envia OTP no email cadastrado
+- `POST /api/v1/btg/auth/validate-otp` → Validar OTP e obter JWT -> aqui é necessário passar a jwt gerado no login como Bearer Token nela estão informações que são utilizadas para validação.
+
+### **Usuários**
+
+- `GET /api/v1/btg/users/profile` → Obter perfil do usuário autenticado
+
+### **OTP**
+
+- `POST /api/v1/btg/otp/create` → Criar novo OTP
+- `POST /api/v1/btg/otp/validate` → Validar OTP
+- `GET /api/v1/btg/otp/status/{hash}` → Consultar status de OTP
+
+### **Sistema**
+
+- `GET /api/v1/btg/health` → Health check
+
+---
+
+## 🧪 Testes
 
 ```bash
-# development
-$ yarn run start
+# Instalar dependências
+yarn
 
-# watch mode
-$ yarn run start:dev
+# Executar em desenvolvimento
+yarn start:dev
 
-# production mode
-$ yarn run start:prod
+# Rodar testes unitários
+yarn test
+
+# Rodar testes end-to-end
+yarn test:e2e
+
+# Verificar cobertura de testes
+yarn test:cov
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ yarn run test
+## 📚 Recursos e Referências
 
-# e2e tests
-$ yarn run test:e2e
+- [NestJS Documentation](https://docs.nestjs.com)
+- [Docker Documentation](https://docs.docker.com)
 
-# test coverage
-$ yarn run test:cov
-```
+---
 
-## Deployment
+## 📜 Licença
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Este projeto é distribuído sob a licença **MIT**.
