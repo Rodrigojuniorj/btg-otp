@@ -318,7 +318,7 @@ jobs:
     name: 🚀 Deploy Produção
     runs-on: ubuntu-latest
     if: always()
-    environment: production
+    environment: BTG
 
     steps:
       - name: 📥 Checkout código
