@@ -336,6 +336,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: sa-east-1
 
+      - name: 📦 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: 🏗️ Build da aplicação
+        run: yarn build
+
       - name: 🗄️ Executar migrations no RDS
         env:
           NODE_ENV: production
@@ -362,7 +368,7 @@ jobs:
           OTP_MINUTE_DURATION: ${{ secrets.OTP_MINUTE_DURATION }}
           OTP_LENGTH: ${{ secrets.OTP_LENGTH }}
           OTP_MAX_ATTEMPTS: ${{ secrets.OTP_MAX_ATTEMPTS }}
-        run: yarn typeorm migration:run -d src/config/database/data-source.ts
+        run: yarn typeorm migration:run -d dist/src/config/database/data-source.js
 
       - name: 🚀 Deploy Lambda
         env:
