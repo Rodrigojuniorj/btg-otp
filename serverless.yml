@@ -35,13 +35,14 @@ provider:
     OTP_LENGTH: ${env:OTP_LENGTH}
     OTP_MAX_ATTEMPTS: ${env:OTP_MAX_ATTEMPTS}
     JWT_OTP_SECRET: ${env:JWT_OTP_SECRET}
+    SERVERLESS_ACCESS_KEY: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJZCI6IjczY2FkMjViLThlNTYtNDAyZi04ZmFjLTRiMTA3NWMxOTA5ZCIsImlhdCI6MTc1NjkyNDQ3MSwiZXhwIjoxNzg4NDYwNDcxLCJpc3MiOiJhcHAuc2VydmVybGVzcy5jb20ifQ.gCMOSprABvErARuFlAJjjDlCWfarFfXlJrkua73XCKyqcySiifyzMnDmEX-KDX4R-YNoJdenAL7YZ8yoZwGn1WTTL6NJdENbNLJ5K301laxQZURRDl_B7zMGaqdjfEcrhsnHUNjOvKcY8o7QYdRMVca587QgkYN2cgkwQTF4P1ZA_sxAuTQmZ-b1mJxcvXqy_wA4-96XB7R5vgQGtPlt0HPWqZt-KrGYtVGBMgZb3TVRSbCfZ20cARky9mfgv9Z7-rvzk7qmQY79w2N5LW51D4V3-NGOMmrl-Q2XoVwzWDO_6s0gruQvwAXQl3105s-foQRO2SND8g_c-hq135lkcA
 
 functions:
-  api:
+  main:
     handler: dist/lambda.handler
     events:
-      - httpApi:
-          path: /{proxy+}
+      - http:
+          path: /{any+}
           method: any
 
 plugins:
