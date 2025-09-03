@@ -14,6 +14,9 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE || 'postgres',
   schema: process.env.DB_SCHEMA || 'public',
   entities: [User, Otp],
+  ssl: {
+    rejectUnauthorized: false,
+  },
   migrations:
     process.env.NODE_ENV === 'production'
       ? ['dist/migrations/*.js']

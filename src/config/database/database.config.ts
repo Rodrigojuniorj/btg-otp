@@ -36,6 +36,9 @@ export const databaseConfig = (
     migrations: ['dist/migrations/*.js'],
     migrationsRun: true,
     synchronize: false,
+    ssl: {
+      rejectUnauthorized: false,
+    },
     logging: envConfigService.get('NODE_ENV') !== 'production',
   }
 }
