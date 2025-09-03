@@ -41,7 +41,7 @@ functions:
   main:
     handler: dist/lambda.handler
     events:
-      - http:
+      - httpApi:
           path: /{any+}
           method: any
 

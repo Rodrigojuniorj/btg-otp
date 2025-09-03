@@ -4,6 +4,12 @@ import { AppModule } from './app.module'
 import { EnvConfigService } from './common/service/env/env-config.service'
 import helmet from 'helmet'
 import { ValidationPipe } from '@nestjs/common'
+import * as crypto from 'crypto'
+
+// Polyfill para crypto no ambiente Lambda
+if (typeof global.crypto === 'undefined') {
+  global.crypto = crypto as typeof global.crypto
+}
 
 let cachedServer
 
