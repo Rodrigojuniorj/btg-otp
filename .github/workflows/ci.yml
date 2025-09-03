@@ -2,9 +2,9 @@ name: CI/CD Pipeline - BTG OTP
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, fix/workflow-ci-cd]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, fix/workflow-ci-cd]
   release:
     types: [published]
 
@@ -329,8 +329,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 🔐 Configurar AWS
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: 🔑 Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -368,10 +368,11 @@ jobs:
           OTP_MINUTE_DURATION: ${{ secrets.OTP_MINUTE_DURATION }}
           OTP_LENGTH: ${{ secrets.OTP_LENGTH }}
           OTP_MAX_ATTEMPTS: ${{ secrets.OTP_MAX_ATTEMPTS }}
-        run: yarn typeorm migration:run -d dist/src/config/database/data-source.js
+        run: yarn migration:run
 
       - name: 🚀 Deploy Lambda
         env:
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
           NODE_ENV: production
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}

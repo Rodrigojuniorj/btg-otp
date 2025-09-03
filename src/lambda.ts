@@ -4,6 +4,12 @@ import { AppModule } from './app.module'
 import { EnvConfigService } from './common/service/env/env-config.service'
 import helmet from 'helmet'
 import { ValidationPipe } from '@nestjs/common'
+import * as crypto from 'crypto'
+
+if (typeof global.crypto === 'undefined') {
+  // @ts-expect-error - crypto polyfill for Lambda
+  global.crypto = crypto
+}
 
 let cachedServer
 
