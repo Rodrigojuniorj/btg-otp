@@ -19,9 +19,10 @@ export class RedisService extends Redis implements OnModuleDestroy {
       config.get('NODE_ENV', { infer: true }) === 'development'
 
     super.on('error', (err) => {
-      console.log('Error on Redis')
       console.log(err)
-      process.exit(1)
+      if (this.isDevelopment && process.env.NODE_ENV !== 'test') {
+        process.exit(1)
+      }
     })
   }
 

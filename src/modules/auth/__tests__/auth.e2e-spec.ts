@@ -30,8 +30,12 @@ describe('AuthController (E2E)', () => {
   })
 
   afterAll(async () => {
-    await app.close()
-  })
+    try {
+      await app.close()
+    } catch (error) {
+      console.error('Error closing app:', error)
+    }
+  }, 10000)
 
   describe('/auth/register (POST)', () => {
     it('should create a new user successfully', () => {
