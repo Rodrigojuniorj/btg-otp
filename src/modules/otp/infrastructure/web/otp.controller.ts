@@ -1,0 +1,93 @@
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Param,
+} from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
+import { Public } from '@/common/decorators/public.decorator'
+import { CreateOtpUseCase } from '../../application/use-cases/create-otp.use-case'
+import { ValidateOtpUseCase } from '../../application/use-cases/validate-otp.use-case'
+import { GetOtpStatusUseCase } from '../../application/use-cases/get-otp-status.use-case'
+import { CreateOtpRequest } from '../../application/interfaces/create-otp.interface'
+import { ValidateOtpRequest } from '../../application/interfaces/validate-otp.interface'
+import { GetOtpStatusResponse } from '../../application/interfaces/get-otp-status.interface'
+import {
+  CreateOtpSwagger,
+  ValidateOtpSwagger,
+  OtpStatusSwagger,
+} from './swagger'
+import { CreateOtpDto } from './dto/create-otp.dto'
+import { CreateOtpResponseDto } from './dto/create-otp-response.dto'
+import { ValidateOtpDto } from './dto/validate-otp.dto'
+import { ValidateOtpResponseDto } from './dto/validate-otp-response.dto'
+
+@ApiTags('OTP')
+@Controller('otp')
+@Public()
+export class OtpController {
+  constructor(
+    private readonly createOtpUseCase: CreateOtpUseCase,
+    private readonly validateOtpUseCase: ValidateOtpUseCase,
+    private readonly getOtpStatusUseCase: GetOtpStatusUseCase,
+  ) {}
+
+  @CreateOtpSwagger.operation
+  @CreateOtpSwagger.body
+  @CreateOtpSwagger.created
+  @CreateOtpSwagger.badRequest
+  @CreateOtpSwagger.conflict
+  @Post('create')
+  @HttpCode(HttpStatus.CREATED)
+  async createOtp(
+    @Body() createOtpDto: CreateOtpDto,
+  ): Promise<CreateOtpResponseDto> {
+    const request: CreateOtpRequest = {
+      email: createOtpDto.email,
+      purpose: createOtpDto.purpose,
+    }
+
+    return this.createOtpUseCase.execute(request)
+  }
+
+  @ValidateOtpSwagger.operation
+  @ValidateOtpSwagger.body
+  @ValidateOtpSwagger.ok
+  @ValidateOtpSwagger.unauthorized
+  @Post('validate')
+  @HttpCode(HttpStatus.OK)
+  async validateOtp(
+    @Body() validateOtpDto: ValidateOtpDto,
+  ): Promise<ValidateOtpResponseDto> {
+    const request: ValidateOtpRequest = {
+      otpCode: validateOtpDto.otpCode,
+      hash: validateOtpDto.hash,
+    }
+
+    await this.validateOtpUseCase.execute(request)
+
+    return {
+      message: 'OTP validado com sucesso',
+    }
+  }
+
+  @OtpStatusSwagger.operation
+  @OtpStatusSwagger.param
+  @OtpStatusSwagger.ok
+  @OtpStatusSwagger.notFound
+  @Get('status/:hash')
+  async getOtpStatus(
+    @Param('hash') hash: string,
+  ): Promise<GetOtpStatusResponse | { message: string }> {
+    const status = await this.getOtpStatusUseCase.execute(hash)
+
+    if (!status) {
+      return { message: 'OTP não encontrado' }
+    }
+
+    return status
+  }
+}

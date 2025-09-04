@@ -1,21 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { AuthController } from '../auth.controller'
-import { AuthService } from '../auth.service'
-import { LoginDto } from '../dtos/login.dto'
-import { RegisterDto } from '../dtos/register.dto'
+import { AuthController } from '../infrastructure/web/auth.controller'
+import { LoginUseCase } from '../application/use-cases/login.use-case'
+import { RegisterUseCase } from '../application/use-cases/register.use-case'
+import { AuthValidateOtpUseCase } from '../application/use-cases/validate-otp.use-case'
+import { LoginDto } from '../infrastructure/web/dto/login.dto'
+import { RegisterDto } from '../infrastructure/web/dto/register.dto'
 import { TaskType } from '@/common/enums/task-type.enum'
 import { CustomException } from '@/common/exceptions/customException'
 import { Response } from 'express'
-import { AuthValidateOtpDto } from '../dtos/auth-validate-otp.dto'
+import { AuthValidateOtpDto } from '../infrastructure/web/dto/auth-validate-otp.dto'
+import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
 
 describe('AuthController', () => {
   let controller: AuthController
-  let authService: jest.Mocked<AuthService>
+  let loginUseCase: jest.Mocked<LoginUseCase>
+  let registerUseCase: jest.Mocked<RegisterUseCase>
+  let authValidateOtpUseCase: jest.Mocked<AuthValidateOtpUseCase>
 
-  const mockAuthService = {
-    login: jest.fn(),
-    register: jest.fn(),
-    validate: jest.fn(),
+  const mockLoginUseCase = {
+    execute: jest.fn(),
+  }
+
+  const mockRegisterUseCase = {
+    execute: jest.fn(),
+  }
+
+  const mockAuthValidateOtpUseCase = {
+    execute: jest.fn(),
   }
 
   const mockResponse = {
@@ -27,14 +38,24 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         {
-          provide: AuthService,
-          useValue: mockAuthService,
+          provide: LoginUseCase,
+          useValue: mockLoginUseCase,
+        },
+        {
+          provide: RegisterUseCase,
+          useValue: mockRegisterUseCase,
+        },
+        {
+          provide: AuthValidateOtpUseCase,
+          useValue: mockAuthValidateOtpUseCase,
         },
       ],
     }).compile()
 
     controller = module.get<AuthController>(AuthController)
-    authService = module.get(AuthService)
+    loginUseCase = module.get(LoginUseCase)
+    registerUseCase = module.get(RegisterUseCase)
+    authValidateOtpUseCase = module.get(AuthValidateOtpUseCase)
 
     jest.clearAllMocks()
   })
@@ -51,6 +72,8 @@ describe('AuthController', () => {
       }
 
       const mockLoginResponse = {
+        message: 'Código OTP enviado para seu email',
+        taskType: TaskType.OTP_CHALLENGER,
         accessToken: 'jwt.token.here',
         validationUrl: '/auth/validate-otp/hash123',
       }
@@ -62,15 +85,15 @@ describe('AuthController', () => {
         validationUrl: mockLoginResponse.validationUrl,
       }
 
-      authService.login.mockResolvedValue(mockLoginResponse)
+      loginUseCase.execute.mockResolvedValue(mockLoginResponse)
 
       const result = await controller.login(loginDto, mockResponse)
 
       expect(result).toEqual(expectedResponse)
-      expect(authService.login).toHaveBeenCalledWith(
-        loginDto.email,
-        loginDto.password,
-      )
+      expect(loginUseCase.execute).toHaveBeenCalledWith({
+        email: loginDto.email,
+        password: loginDto.password,
+      })
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
         'x-task-type',
         TaskType.OTP_CHALLENGER,
@@ -83,17 +106,17 @@ describe('AuthController', () => {
         password: 'wrongpassword',
       }
 
-      authService.login.mockRejectedValue(
+      loginUseCase.execute.mockRejectedValue(
         new CustomException('Invalid credentials', 401),
       )
 
       await expect(controller.login(loginDto, mockResponse)).rejects.toThrow(
         CustomException,
       )
-      expect(authService.login).toHaveBeenCalledWith(
-        loginDto.email,
-        loginDto.password,
-      )
+      expect(loginUseCase.execute).toHaveBeenCalledWith({
+        email: loginDto.email,
+        password: loginDto.password,
+      })
     })
   })
 
@@ -105,11 +128,20 @@ describe('AuthController', () => {
         password: 'password123',
       }
 
-      authService.register.mockResolvedValue(undefined)
+      const mockRegisterResponse = {
+        message: 'Usuário criado com sucesso',
+      }
 
-      await controller.register(registerDto)
+      registerUseCase.execute.mockResolvedValue(mockRegisterResponse)
 
-      expect(authService.register).toHaveBeenCalledWith(registerDto)
+      const result = await controller.register(registerDto)
+
+      expect(result).toEqual(mockRegisterResponse)
+      expect(registerUseCase.execute).toHaveBeenCalledWith({
+        name: registerDto.name,
+        email: registerDto.email,
+        password: registerDto.password,
+      })
     })
 
     it('should handle service errors properly', async () => {
@@ -119,14 +151,18 @@ describe('AuthController', () => {
         password: 'password123',
       }
 
-      authService.register.mockRejectedValue(
+      registerUseCase.execute.mockRejectedValue(
         new CustomException('Email already exists', 400),
       )
 
       await expect(controller.register(registerDto)).rejects.toThrow(
         CustomException,
       )
-      expect(authService.register).toHaveBeenCalledWith(registerDto)
+      expect(registerUseCase.execute).toHaveBeenCalledWith({
+        name: registerDto.name,
+        email: registerDto.email,
+        password: registerDto.password,
+      })
     })
   })
 
@@ -140,22 +176,22 @@ describe('AuthController', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'hash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
       const mockValidationResponse = {
         accessToken: 'access.token.here',
       }
 
-      authService.validate.mockResolvedValue(mockValidationResponse)
+      authValidateOtpUseCase.execute.mockResolvedValue(mockValidationResponse)
 
       const result = await controller.validateOtp(validateOtpDto, mockUserOtp)
 
       expect(result).toEqual(mockValidationResponse)
-      expect(authService.validate).toHaveBeenCalledWith(
-        validateOtpDto,
-        mockUserOtp,
-      )
+      expect(authValidateOtpUseCase.execute).toHaveBeenCalledWith({
+        otpCode: validateOtpDto.otpCode,
+        user: mockUserOtp,
+      })
     })
 
     it('should handle service errors properly', async () => {
@@ -167,20 +203,20 @@ describe('AuthController', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'hash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
-      authService.validate.mockRejectedValue(
+      authValidateOtpUseCase.execute.mockRejectedValue(
         new CustomException('Invalid OTP', 401),
       )
 
       await expect(
         controller.validateOtp(validateOtpDto, mockUserOtp),
       ).rejects.toThrow(CustomException)
-      expect(authService.validate).toHaveBeenCalledWith(
-        validateOtpDto,
-        mockUserOtp,
-      )
+      expect(authValidateOtpUseCase.execute).toHaveBeenCalledWith({
+        otpCode: validateOtpDto.otpCode,
+        user: mockUserOtp,
+      })
     })
   })
 

@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import {
-  EmailTemplatesService,
-  EmailTemplateData,
-} from '../email-templates.service'
+import { EmailTemplatesService } from '../email-templates.service'
+import { EmailTemplateData } from '../base-template'
 
 describe('EmailTemplatesService', () => {
   let service: EmailTemplatesService

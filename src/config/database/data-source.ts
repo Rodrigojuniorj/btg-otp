@@ -1,7 +1,8 @@
 import { DataSource } from 'typeorm'
 import { config } from 'dotenv'
-import { User } from '../../modules/users/entities/user.entity'
-import { Otp } from '../../modules/otp/entities/otp.entity'
+import { UserEntity } from '../../modules/users/infrastructure/database/user.entity'
+import { OtpEntity } from '../../modules/otp/infrastructure/database/otp.entity'
+import { NodeEnv } from '../../common/enums/node-env.enum'
 
 config()
 
@@ -13,14 +14,17 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'postgres',
   schema: process.env.DB_SCHEMA || 'public',
-  entities: [User, Otp],
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  entities: [UserEntity, OtpEntity],
+  ssl:
+    process.env.NODE_ENV === NodeEnv.PRODUCTION
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
   migrations:
-    process.env.NODE_ENV === 'production'
+    process.env.NODE_ENV === NodeEnv.PRODUCTION
       ? ['dist/migrations/*.js']
       : ['src/migrations/*.ts'],
   synchronize: false,
-  logging: process.env.NODE_ENV !== 'production',
+  logging: process.env.NODE_ENV !== NodeEnv.PRODUCTION,
 })

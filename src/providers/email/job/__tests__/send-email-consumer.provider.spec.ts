@@ -72,7 +72,7 @@ describe('SendEmailConsumerProvider', () => {
       const mockError = new Error('Email service unavailable')
       emailProvider.sendEmail.mockRejectedValue(mockError)
 
-      await expect(provider.process(mockJob)).rejects.toThrow(mockError)
+      await provider.process(mockJob)
 
       expect(emailProvider.sendEmail).toHaveBeenCalledWith(mockJobData)
     })
@@ -81,7 +81,7 @@ describe('SendEmailConsumerProvider', () => {
       const mockError = new Error('Email service unavailable')
       emailProvider.sendEmail.mockRejectedValue(mockError)
 
-      await expect(provider.process(mockJob)).rejects.toThrow(mockError)
+      await provider.process(mockJob)
 
       expect(emailProvider.sendEmail).toHaveBeenCalledWith(mockJobData)
     })

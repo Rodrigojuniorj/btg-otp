@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
-import { AppController } from './app.controller'
 import { AuthModule } from './modules/auth/auth.module'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { Env, envSchema } from './common/service/env/env'
+import { ConfigModule } from '@nestjs/config'
+import { envSchema } from './common/service/env/env'
 import { EnvConfigModule } from './common/service/env/env-config.module'
 import { DatabaseModule } from './config/database/database.module'
 import { EnvConfigService } from './common/service/env/env-config.service'
@@ -13,6 +12,7 @@ import { UsersModule } from './modules/users/users.module'
 import { OtpModule } from './modules/otp/otp.module'
 import { JwtModule } from '@nestjs/jwt'
 import { CacheModule } from './providers/cache/cache.module'
+import { AppController } from './infrastructure/web/app.controller'
 
 @Module({
   imports: [
@@ -27,12 +27,13 @@ import { CacheModule } from './providers/cache/cache.module'
     }),
     CacheModule,
     BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<Env, true>) => ({
+      imports: [EnvConfigModule],
+      inject: [EnvConfigService],
+      useFactory: (configService: EnvConfigService) => ({
         connection: {
-          host: configService.get('REDIS_HOST', { infer: true }),
-          port: configService.get('REDIS_PORT', { infer: true }),
-          password: configService.get('REDIS_PASSWORD', { infer: true }),
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+          password: configService.get('REDIS_PASSWORD'),
         },
         defaultJobOptions: {
           removeOnComplete: 100,
@@ -46,14 +47,14 @@ import { CacheModule } from './providers/cache/cache.module'
       }),
     }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+      imports: [EnvConfigModule],
+      inject: [EnvConfigService],
+      useFactory: async (configService: EnvConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN'),
+          expiresIn: configService.get('JWT_EXPIRES_IN'),
         },
       }),
-      inject: [ConfigService],
     }),
     EnvConfigModule,
     DatabaseModule,

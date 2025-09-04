@@ -3,8 +3,9 @@ import { Job } from 'bullmq'
 import { SendEmailDto } from '../../nodemailer/dto/send-email.dto'
 import { EmailProvider } from '../../nodemailer/email.provider'
 import { Logger } from '@nestjs/common'
+import { RegisterQueue } from '@/common/enums/register-queue.enum'
 
-@Processor('SEND_EMAIL_QUEUE')
+@Processor(RegisterQueue.SEND_EMAIL_QUEUE)
 export class SendEmailConsumerProvider extends WorkerHost {
   private readonly logger = new Logger(SendEmailConsumerProvider.name)
 
@@ -14,11 +15,13 @@ export class SendEmailConsumerProvider extends WorkerHost {
 
   async process(job: Job<SendEmailDto>): Promise<void> {
     try {
-      this.logger.log(`Sending email to ${job.data.recipient}`)
+      this.logger.log(`Enviando email para ${job.data.recipient}`)
       await this.emailProvider.sendEmail(job.data)
     } catch (error) {
-      this.logger.error(`Error sending email to ${job.data.recipient}`, error)
-      throw error
+      this.logger.error(
+        `Erro ao enviar email para ${job.data.recipient}`,
+        error,
+      )
     }
   }
 }

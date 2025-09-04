@@ -5,11 +5,13 @@ import { EnvConfigService } from './common/service/env/env-config.service'
 import helmet from 'helmet'
 import { ValidationPipe } from '@nestjs/common'
 import * as crypto from 'crypto'
+import { NodeEnv } from './common/enums/node-env.enum'
 
-if (typeof global.crypto === 'undefined') {
-  // @ts-expect-error - crypto polyfill for Lambda
-  global.crypto = crypto
-}
+Object.defineProperty(global, 'crypto', {
+  value: crypto,
+  writable: true,
+  configurable: true,
+})
 
 let cachedServer
 
@@ -17,20 +19,23 @@ export const handler = async (event, context) => {
   if (!cachedServer) {
     const nestApp = await NestFactory.create(AppModule)
 
-    nestApp.enableCors({
-      origin: '*',
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-      allowedHeaders: 'Content-Type, Accept, Authorization, x-time-zone',
-      credentials: false,
-    })
+    const envConfigService = nestApp.get(EnvConfigService)
+
+    if (envConfigService.get('NODE_ENV') !== NodeEnv.PRODUCTION) {
+      nestApp.enableCors({
+        origin: '*',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        allowedHeaders: 'Content-Type, Accept, Authorization, x-time-zone',
+        credentials: false,
+      })
+    }
+
     nestApp.useGlobalPipes(new ValidationPipe({ transform: true }))
 
-    const documentationPrefix = nestApp
-      .get(EnvConfigService)
-      .get('DOCUMENTATION_PREFIX')
-    nestApp.setGlobalPrefix(documentationPrefix)
+    nestApp.setGlobalPrefix(envConfigService.get('DOCUMENTATION_PREFIX'))
 
     nestApp.use(helmet())
+
     await nestApp.init()
 
     cachedServer = serverlessExpress({
