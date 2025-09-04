@@ -20,6 +20,6 @@ import { RegisterQueue } from '@/common/enums/register-queue.enum'
     SendEmailConsumerProvider,
     EmailTemplatesService,
   ],
-  exports: [SendEmailQueueProvider, EmailTemplatesService],
+  exports: [SendEmailQueueProvider, EmailTemplatesService, EmailProvider],
 })
 export class EmailProviderModule {}

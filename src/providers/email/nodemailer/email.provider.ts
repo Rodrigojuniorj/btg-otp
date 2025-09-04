@@ -17,8 +17,6 @@ export class EmailProvider {
         user: this.envConfigService.get('USER_EMAIL'),
         pass: this.envConfigService.get('PASS_EMAIL'),
       },
-      logger: true,
-      debug: true,
     })
   }
 

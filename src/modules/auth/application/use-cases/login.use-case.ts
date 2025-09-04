@@ -14,6 +14,7 @@ import { AuthTaskType } from '../../domain/enums/auth.enum'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import { LoginRequest, LoginResponse } from '../interfaces/login.interface'
+import { EmailProvider } from '@/providers/email/nodemailer/email.provider'
 
 @Injectable()
 export class LoginUseCase {
@@ -27,6 +28,7 @@ export class LoginUseCase {
     private readonly cache: CacheRepository,
     private readonly sendEmailQueueProvider: SendEmailQueueProvider,
     private readonly emailTemplatesService: EmailTemplatesService,
+    private readonly sendEmailProvider: EmailProvider,
   ) {}
 
   async execute(request: LoginRequest): Promise<LoginResponse> {
@@ -82,11 +84,20 @@ export class LoginUseCase {
       otpExpirationMinutes: this.envConfigService.get('OTP_MINUTE_DURATION'),
     })
 
-    await this.sendEmailQueueProvider.execute({
-      recipient: user.email,
-      subject: SubjectEmail.TOKEN_ACCESS,
-      body: emailHtml,
-    })
+    if (this.envConfigService.get('NODE_ENV') === 'production') {
+      // Devido ao uso de LAMBDA no AWS, a fila não é processada de forma confiável
+      await this.sendEmailProvider.sendEmail({
+        recipient: user.email,
+        subject: SubjectEmail.TOKEN_ACCESS,
+        body: emailHtml,
+      })
+    } else {
+      await this.sendEmailQueueProvider.execute({
+        recipient: user.email,
+        subject: SubjectEmail.TOKEN_ACCESS,
+        body: emailHtml,
+      })
+    }
 
     return {
       message: 'Código OTP enviado para seu email',
