@@ -78,6 +78,10 @@ const config: Config = {
     'src/common/service',
     'src/common/guards/jwt-auth.guard.ts',
     'column-date.util.ts',
+    'lambda.ts',
+    'env.util.ts',
+    'password-reset-template.ts',
+    'welcome-template.ts',
   ],
 
   moduleNameMapper: {
