@@ -13,6 +13,7 @@ import { AuthTaskType } from '../domain/enums/auth.enum'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import * as bcrypt from 'bcryptjs'
+import { EmailProvider } from '@/providers/email/nodemailer/email.provider'
 
 jest.mock('bcryptjs')
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>
@@ -56,6 +57,10 @@ describe('LoginUseCase', () => {
     generateOtpEmail: jest.fn(),
   }
 
+  const mockEmailProvider = {
+    sendEmail: jest.fn(),
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -83,6 +88,10 @@ describe('LoginUseCase', () => {
         {
           provide: SendEmailQueueProvider,
           useValue: mockSendEmailQueueProvider,
+        },
+        {
+          provide: EmailProvider,
+          useValue: mockEmailProvider,
         },
         {
           provide: EmailTemplatesService,

@@ -170,7 +170,7 @@ describe('ValidateOtpUseCase', () => {
         OtpPurpose.GENERAL,
         OtpStatus.PENDING,
         0,
-        new Date(Date.now() - 1000), // Expired
+        new Date(Date.now() - 1000),
         new Date(),
         new Date(),
       )

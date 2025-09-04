@@ -168,7 +168,7 @@ describe('AuthValidateOtpUseCase', () => {
         },
       }
 
-      cache.get.mockResolvedValue('2') // Different user ID
+      cache.get.mockResolvedValue('2')
 
       await expect(useCase.execute(request)).rejects.toThrow(
         new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS()),
