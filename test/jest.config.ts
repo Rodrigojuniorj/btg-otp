@@ -88,10 +88,8 @@ const config: Config = {
 
   testTimeout: 10000,
 
-  // Configurações para testes de integração
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/test/e2e/'],
 
-  // Configurações para melhor performance
   maxWorkers: '50%',
   maxConcurrency: 1,
 }

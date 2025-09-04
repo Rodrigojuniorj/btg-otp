@@ -70,7 +70,7 @@ export class OtpDto {
     type: Date,
     nullable: true,
   })
-  validatedAt: Date | null
+  validatedAt?: Date
 
   @ApiProperty({
     description: 'Data e hora de criação do OTP',

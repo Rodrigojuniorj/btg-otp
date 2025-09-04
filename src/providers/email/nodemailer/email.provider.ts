@@ -22,7 +22,9 @@ export class EmailProvider {
   async sendEmail(data: SendEmailDto) {
     try {
       await this.transporter.sendMail({
-        from: this.envConfigService.get('USER_EMAIL'),
+        from: {
+          name: 'BTG OTP System',
+        },
         to: data.recipient,
         subject: data.subject,
         html: data.body,

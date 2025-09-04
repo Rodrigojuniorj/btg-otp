@@ -1,20 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { webcrypto } from 'crypto'
-;(global as any).crypto = webcrypto
+import * as crypto from 'crypto'
+
+Object.defineProperty(global, 'crypto', {
+  value: crypto,
+  writable: true,
+  configurable: true,
+})
 
 process.env.NODE_ENV = 'test'
 
-// Mock do ioredis para testes
 jest.mock('ioredis', () => {
   class MockRedis {
     private data: Map<string, unknown> = new Map()
     private listeners: Map<string, Array<(...args: unknown[]) => void>> =
       new Map()
 
-    constructor() {
-      // Constructor vazio para mock
-    }
+    constructor() {}
 
     get(key: string) {
       return Promise.resolve(this.data.get(key) || null)
@@ -100,16 +100,15 @@ jest.mock('ioredis', () => {
   return { Redis: MockRedis }
 })
 
-// Mock do bullmq para testes
 jest.mock('bullmq', () => {
   class FakeQueue {
-    constructor(..._args: any[]) {}
+    constructor() {}
 
-    add(..._args: any[]) {
+    add() {
       return Promise.resolve()
     }
 
-    addBulk(..._args: any[]) {
+    addBulk() {
       return Promise.resolve([])
     }
 
@@ -129,7 +128,7 @@ jest.mock('bullmq', () => {
   }
 
   class FakeWorker {
-    constructor(..._args: any[]) {}
+    constructor() {}
 
     on() {}
 
@@ -143,7 +142,7 @@ jest.mock('bullmq', () => {
   }
 
   class FakeQueueEvents {
-    constructor(..._args: any[]) {}
+    constructor() {}
 
     on() {}
 

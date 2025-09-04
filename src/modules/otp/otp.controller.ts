@@ -7,28 +7,16 @@ import {
   Get,
   Param,
 } from '@nestjs/common'
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBody,
-  ApiParam,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiBadRequestResponse,
-  ApiUnauthorizedResponse,
-  ApiNotFoundResponse,
-  ApiConflictResponse,
-} from '@nestjs/swagger'
+import { ApiTags } from '@nestjs/swagger'
 import { OtpService } from './otp.service'
 import { CreateOtpDto } from './dto/create-otp.dto'
 import { ValidateOtpDto } from './dto/validate-otp.dto'
-import { CreateOtpResponseDto } from './dto/create-otp-response.dto'
-import { ValidateOtpResponseDto } from './dto/validate-otp-response.dto'
-import {
-  OtpStatusResponseDto,
-  OtpNotFoundResponseDto,
-} from './dto/otp-status-response.dto'
 import { Public } from '@/common/decorators/public.decorator'
+import {
+  CreateOtpSwagger,
+  ValidateOtpSwagger,
+  OtpStatusSwagger,
+} from './swagger'
 
 @ApiTags('OTP')
 @Controller('otp')
@@ -36,39 +24,21 @@ import { Public } from '@/common/decorators/public.decorator'
 export class OtpController {
   constructor(private readonly otpService: OtpService) {}
 
-  @ApiOperation({
-    summary: 'Criar novo OTP',
-    description: 'Gera um novo código OTP para verificação ou autenticação',
-  })
-  @ApiBody({ type: CreateOtpDto })
-  @ApiCreatedResponse({
-    description: 'OTP criado com sucesso',
-    type: CreateOtpResponseDto,
-  })
-  @ApiBadRequestResponse({
-    description: 'Dados inválidos fornecidos',
-  })
-  @ApiConflictResponse({
-    description: 'Já existe um OTP ativo para este identificador',
-  })
+  @CreateOtpSwagger.operation
+  @CreateOtpSwagger.body
+  @CreateOtpSwagger.created
+  @CreateOtpSwagger.badRequest
+  @CreateOtpSwagger.conflict
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   async createOtp(@Body() createOtpDto: CreateOtpDto) {
     return this.otpService.create(createOtpDto)
   }
 
-  @ApiOperation({
-    summary: 'Validar OTP',
-    description: 'Valida um código OTP usando o hash e código fornecidos',
-  })
-  @ApiBody({ type: ValidateOtpDto })
-  @ApiOkResponse({
-    description: 'OTP validado com sucesso',
-    type: ValidateOtpResponseDto,
-  })
-  @ApiUnauthorizedResponse({
-    description: 'OTP inválido, expirado ou já utilizado',
-  })
+  @ValidateOtpSwagger.operation
+  @ValidateOtpSwagger.body
+  @ValidateOtpSwagger.ok
+  @ValidateOtpSwagger.unauthorized
   @Post('validate')
   @HttpCode(HttpStatus.OK)
   async validateOtp(@Body() validateOtpDto: ValidateOtpDto) {
@@ -79,23 +49,10 @@ export class OtpController {
     }
   }
 
-  @ApiOperation({
-    summary: 'Verificar status do OTP',
-    description: 'Retorna o status atual e data de expiração de um OTP',
-  })
-  @ApiParam({
-    name: 'hash',
-    description: 'Hash único do OTP',
-    example: 'abc123def456ghi789',
-  })
-  @ApiOkResponse({
-    description: 'Status do OTP encontrado',
-    type: OtpStatusResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: 'OTP não encontrado',
-    type: OtpNotFoundResponseDto,
-  })
+  @OtpStatusSwagger.operation
+  @OtpStatusSwagger.param
+  @OtpStatusSwagger.ok
+  @OtpStatusSwagger.notFound
   @Get('status/:hash')
   async getOtpStatus(@Param('hash') hash: string) {
     const status = await this.otpService.getOtpStatus(hash)

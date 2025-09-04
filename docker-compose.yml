@@ -8,32 +8,32 @@ services:
     container_name: btg-otp
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - DB_HOST=btg-postgres
-      - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - DB_DATABASE=btg_db
-      - DB_SCHEMA=public
-      - JWT_SECRET=508e703c81a194c84a9895bd04362f504b33d8366a2f371cc0d346074fa6e7697c8f2e9d2df38ac8edb86f4935a45037053f16821d1667d6c3d8afaf082f366f
-      - JWT_EXPIRES_IN=7d
-      - PORT=3333
-      - DOCUMENTATION_PREFIX=api/v1/btg
-      - OTP_LENGTH=7
-      - OTP_MINUTE_DURATION=5
-      - JWT_OTP_SECRET=c9ad76206cdf96c4410f24d248aefa7f4e9849c90e26576e7a890f28212edeb44624d2b01467657647fe2ec655b3626584b994593fe67842938e4d4fb2726d8a
-      - REDIS_HOST=btg-redis
-      - REDIS_PORT=6379
-      - REDIS_DB=0
-      - REDIS_PASSWORD=btg_redis_password
-      - SMTP_HOST=smtp.gmail.com
-      - PORT_EMAIL=465
-      - SECURE_EMAIL=true
-      - USER_EMAIL=junioryrj@gmail.com
-      - BBC_EMAIL=rodrigo.franco@unifio.edu.br
-      - PASS_EMAIL=oyjn prnc rfcy zfqz
-      - SERVER_URL=http://localhost:3333
-      - OTP_MAX_ATTEMPTS=3
+      NODE_ENV: ${NODE_ENV}
+      DB_HOST: btg-postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: btg_db
+      DB_SCHEMA: public
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      PORT: ${PORT}
+      DOCUMENTATION_PREFIX: ${DOCUMENTATION_PREFIX}
+      OTP_LENGTH: ${OTP_LENGTH}
+      OTP_MINUTE_DURATION: ${OTP_MINUTE_DURATION}
+      JWT_OTP_SECRET: ${JWT_OTP_SECRET}
+      REDIS_HOST: btg-redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: btg_redis_password
+      SMTP_HOST: ${SMTP_HOST}
+      PORT_EMAIL: ${PORT_EMAIL}
+      SECURE_EMAIL: ${SECURE_EMAIL}
+      USER_EMAIL: ${USER_EMAIL}
+      BBC_EMAIL: ${BBC_EMAIL}
+      PASS_EMAIL: ${PASS_EMAIL}
+      SERVER_URL: ${SERVER_URL}
+      OTP_MAX_ATTEMPTS: ${OTP_MAX_ATTEMPTS}
     ports:
       - '3333:3333'
     depends_on:

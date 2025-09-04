@@ -1,8 +1,7 @@
 import { ColumnOptions } from 'typeorm'
-
-const isTest = process.env.NODE_ENV === 'test'
+import { isTest } from '../utils/env.util'
 
 export const columnDate = (opts: ColumnOptions = {}): ColumnOptions => ({
-  type: isTest ? 'datetime' : 'timestamp',
+  type: isTest() ? 'datetime' : 'timestamp',
   ...opts,
 })

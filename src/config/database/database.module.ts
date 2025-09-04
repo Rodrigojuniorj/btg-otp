@@ -1,4 +1,3 @@
-// database.module.ts
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { EnvConfigService } from '../../common/service/env/env-config.service'

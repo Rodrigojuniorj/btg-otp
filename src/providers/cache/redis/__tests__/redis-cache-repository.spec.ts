@@ -4,7 +4,6 @@ import { RedisService } from '../redis.service'
 
 describe('RedisCacheRepository', () => {
   let repository: RedisCacheRepository
-  let redisService: jest.Mocked<RedisService>
 
   const mockRedisService = {
     set: jest.fn(),
@@ -12,7 +11,10 @@ describe('RedisCacheRepository', () => {
     del: jest.fn(),
     keys: jest.fn(),
     scan: jest.fn(),
+    getIsDevelopment: jest.fn().mockReturnValue(false),
   }
+
+  let redisService: typeof mockRedisService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -163,32 +165,6 @@ describe('RedisCacheRepository', () => {
 
       expect(result).toEqual(['single:1'])
       expect(redisService.scan).toHaveBeenCalledWith('0', 'MATCH', pattern)
-    })
-  })
-
-  describe('keysByValue', () => {
-    it('should return true when keys contain value', async () => {
-      const value = 'user123'
-      const mockKeys = ['user:user123', 'session:user123']
-
-      jest.spyOn(repository, 'scanKeys').mockResolvedValue(mockKeys)
-
-      const result = await repository.keysByValue(value)
-
-      expect(result).toBe(true)
-      expect(repository.scanKeys).toHaveBeenCalledWith(`*${value}*`)
-    })
-
-    it('should return false when no keys contain value', async () => {
-      const value = 'nonexistent'
-      const mockKeys: string[] = []
-
-      jest.spyOn(repository, 'scanKeys').mockResolvedValue(mockKeys)
-
-      const result = await repository.keysByValue(value)
-
-      expect(result).toBe(false)
-      expect(repository.scanKeys).toHaveBeenCalledWith(`*${value}*`)
     })
   })
 

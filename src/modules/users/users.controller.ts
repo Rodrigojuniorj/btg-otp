@@ -1,14 +1,9 @@
 import { Controller, HttpCode, HttpStatus, Get } from '@nestjs/common'
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger'
-
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger'
 import { GetCurrentUserId } from '@/common/decorators/get-current-user-id.decorator'
 import { UsersService } from './users.service'
 import { UserResponseDto } from './dto/user-response.dto'
+import { ProfileSwagger } from './swagger'
 
 @ApiTags('Usuários')
 @ApiBearerAuth('Bearer')
@@ -18,12 +13,8 @@ export class UsersController {
 
   @Get('profile')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Obter perfil do usuário' })
-  @ApiResponse({
-    status: 200,
-    description: 'Perfil do usuário obtido com sucesso',
-    type: UserResponseDto,
-  })
+  @ProfileSwagger.operation
+  @ProfileSwagger.response
   async profile(@GetCurrentUserId() userId: number): Promise<UserResponseDto> {
     return await this.usersService.profile(userId)
   }

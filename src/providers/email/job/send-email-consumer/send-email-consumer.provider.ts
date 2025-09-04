@@ -3,8 +3,9 @@ import { Job } from 'bullmq'
 import { SendEmailDto } from '../../nodemailer/dto/send-email.dto'
 import { EmailProvider } from '../../nodemailer/email.provider'
 import { Logger } from '@nestjs/common'
+import { RegisterQueue } from '@/common/enums/register-queue.enum'
 
-@Processor('SEND_EMAIL_QUEUE')
+@Processor(RegisterQueue.SEND_EMAIL_QUEUE)
 export class SendEmailConsumerProvider extends WorkerHost {
   private readonly logger = new Logger(SendEmailConsumerProvider.name)
 

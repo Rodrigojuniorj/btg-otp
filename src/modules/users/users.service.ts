@@ -29,10 +29,7 @@ export class UsersService {
       throw new CustomException(ErrorMessages.USER.NOT_FOUND(id))
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...rest } = user
-
-    return rest
+    return { ...user, password: undefined } as Omit<typeof user, 'password'>
   }
 
   async findById(id: number): Promise<UserResponseDto> {
