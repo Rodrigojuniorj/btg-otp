@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { ValidationPipe } from '@nestjs/common'
+import { ValidationPipe, Logger } from '@nestjs/common'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import helmet from 'helmet'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  const logger = new Logger('Bootstrap')
 
   app.enableCors({
     origin: '*',
@@ -49,6 +51,12 @@ async function bootstrap() {
     res.send(document)
   })
 
-  await app.listen(envConfigService.get('PORT'))
+  const port = envConfigService.get('PORT')
+  await app.listen(port)
+
+  logger.log(`Aplicação rodando na porta ${port}`)
+  logger.log(
+    `Documentação disponível em: http://localhost:${port}/${envConfigService.get('DOCUMENTATION_PREFIX')}/docs`,
+  )
 }
 bootstrap()

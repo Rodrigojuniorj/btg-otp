@@ -1,9 +1,11 @@
 import { EnvConfigService } from '@/common/service/env/env-config.service'
-import { Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { Redis } from 'ioredis'
 
 @Injectable()
 export class RedisService extends Redis implements OnModuleDestroy {
+  private readonly logger = new Logger(RedisService.name)
+
   constructor(config: EnvConfigService) {
     super({
       host: config.get('REDIS_HOST'),
@@ -13,10 +15,13 @@ export class RedisService extends Redis implements OnModuleDestroy {
     })
 
     super.on('error', (err) => {
-      console.log('Error on Redis')
-      console.log(err)
+      this.logger.error('Error on Redis', err)
       process.exit(1)
     })
+  }
+
+  onModuleInit() {
+    this.logger.log('Redis connected')
   }
 
   onModuleDestroy() {

@@ -15,11 +15,13 @@ export class SendEmailConsumerProvider extends WorkerHost {
 
   async process(job: Job<SendEmailDto>): Promise<void> {
     try {
-      this.logger.log(`Sending email to ${job.data.recipient}`)
+      this.logger.log(`Enviando email para ${job.data.recipient}`)
       await this.emailProvider.sendEmail(job.data)
     } catch (error) {
-      this.logger.error(`Error sending email to ${job.data.recipient}`, error)
-      throw error
+      this.logger.error(
+        `Erro ao enviar email para ${job.data.recipient}`,
+        error,
+      )
     }
   }
 }

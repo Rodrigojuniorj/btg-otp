@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common'
+import { Injectable, HttpStatus, Logger } from '@nestjs/common'
 import { CreateOtpDto } from './dto/create-otp.dto'
 import { CreateOtpResponseDto } from './dto/create-otp-response.dto'
 import { ValidateOtpDto } from './dto/validate-otp.dto'
@@ -13,6 +13,8 @@ import { OtpRepositoryPort } from './repositories/port/otp.repository.port'
 
 @Injectable()
 export class OtpService {
+  private readonly logger = new Logger(OtpService.name)
+
   constructor(
     private readonly otpRepository: OtpRepositoryPort,
     private readonly envConfigService: EnvConfigService,
@@ -94,6 +96,9 @@ export class OtpService {
 
     if (otp.attempts >= this.envConfigService.get('OTP_MAX_ATTEMPTS')) {
       await this.otpRepository.updateStatus(otp.id, OtpStatus.FAILED)
+      this.logger.log(
+        `${ErrorMessages.OTP.MAX_ATTEMPTS_EXCEEDED()}, ID: ${otp.id}`,
+      )
       throw new CustomException(
         ErrorMessages.OTP.MAX_ATTEMPTS_EXCEEDED(),
         HttpStatus.UNAUTHORIZED,
