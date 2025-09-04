@@ -80,13 +80,62 @@ A aplicação estará disponível em:
 Documentação Swagger:  
 👉 `http://localhost:3333/api/v1/btg/docs`
 
-Sendo a porta configurada pelo usuário na env assim como path da API.
+Sendo a porta configurada pelo usuário na env assim como path da API.  
 Aqui no Readme vou seguir com o path api/v1/btg, afim de exemplos
 
 ```
 PORT=3333
 DOCUMENTATION_PREFIX=api/v1/btg
 ```
+
+---
+
+## ⚙️ Configuração de Variáveis de Ambiente (.env)
+
+Antes de executar o projeto, é necessário configurar as variáveis de ambiente.
+
+1. Copie o arquivo de exemplo:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edite o arquivo `.env` e configure de acordo com seu ambiente.
+
+### Exemplo de `.env.example`
+
+```env
+# Configuração da Aplicação
+PORT=3333
+DOCUMENTATION_PREFIX=api/v1/btg
+
+# Banco de Dados
+POSTGRES_USER=example_user
+POSTGRES_PASSWORD=example_password
+POSTGRES_DB=example_db
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# SMTP (necessário para envio de OTP por e-mail)
+SMTP_HOST=smtp.example.com
+PORT_EMAIL=465
+SECURE_EMAIL=true
+USER_EMAIL=your_email@example.com
+BBC_EMAIL=copy_email@example.com
+PASS_EMAIL=your_password_here
+```
+
+⚠️ **Importante**: Para que o disparo de e-mails funcione corretamente, é necessário configurar um **provedor SMTP válido** (como Gmail, Outlook, Amazon SES, etc.).  
+Caso contrário, o envio de OTP na rota AUTH não será realizado.
+
+👉 Se deseja testar a aplicação **100% funcional**, incluindo envio real de e-mails, este projeto já foi implantado em nuvem AWS (Lambda) e a documentação interativa está disponível em:  
+🔗 [Swagger Público](https://swagger-rodrigo-btg.s3.sa-east-1.amazonaws.com/index.html)
+
+---
 
 ## 📖 Endpoints Principais
 
