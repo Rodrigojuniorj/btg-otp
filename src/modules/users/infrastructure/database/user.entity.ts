@@ -1,4 +1,3 @@
-import { columnDate } from '../../../common/db/column-date.util'
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,9 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { columnDate } from '../../../../common/db/column-date.util'
 
 @Entity('users')
-export class User {
+export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number
 

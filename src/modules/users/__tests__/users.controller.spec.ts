@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { UsersController } from '../users.controller'
-import { UsersService } from '../users.service'
-import { UserResponseDto } from '../dto/user-response.dto'
+import { UsersController } from '../infrastructure/web/users.controller'
+import { FindUserByIdUseCase } from '../application/use-cases/find-user-by-id.use-case'
+import { UserProfileResponseDto } from '../infrastructure/web/dto/user-profile-response.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 
 describe('UsersController', () => {
   let controller: UsersController
-  let usersService: jest.Mocked<UsersService>
+  let findUserByIdUseCase: jest.Mocked<FindUserByIdUseCase>
 
-  const mockUsersService = {
-    profile: jest.fn(),
+  const mockFindUserByIdUseCase = {
+    execute: jest.fn(),
   }
 
   beforeEach(async () => {
@@ -18,14 +18,14 @@ describe('UsersController', () => {
       controllers: [UsersController],
       providers: [
         {
-          provide: UsersService,
-          useValue: mockUsersService,
+          provide: FindUserByIdUseCase,
+          useValue: mockFindUserByIdUseCase,
         },
       ],
     }).compile()
 
     controller = module.get<UsersController>(UsersController)
-    usersService = module.get(UsersService)
+    findUserByIdUseCase = module.get(FindUserByIdUseCase)
 
     jest.clearAllMocks()
   })
@@ -37,7 +37,7 @@ describe('UsersController', () => {
   describe('profile', () => {
     it('should return user profile successfully', async () => {
       const userId = 1
-      const mockUserProfile: UserResponseDto = {
+      const mockUserProfile: UserProfileResponseDto = {
         id: 1,
         email: 'test@example.com',
         name: 'Test User',
@@ -45,23 +45,23 @@ describe('UsersController', () => {
         updatedAt: new Date(),
       }
 
-      usersService.profile.mockResolvedValue(mockUserProfile)
+      findUserByIdUseCase.execute.mockResolvedValue(mockUserProfile)
 
       const result = await controller.profile(userId)
 
       expect(result).toEqual(mockUserProfile)
-      expect(usersService.profile).toHaveBeenCalledWith(userId)
+      expect(findUserByIdUseCase.execute).toHaveBeenCalledWith({ id: userId })
     })
 
-    it('should handle service errors properly', async () => {
+    it('should handle use case errors properly', async () => {
       const userId = 999
 
-      usersService.profile.mockRejectedValue(
+      findUserByIdUseCase.execute.mockRejectedValue(
         new CustomException(ErrorMessages.USER.NOT_FOUND(userId)),
       )
 
       await expect(controller.profile(userId)).rejects.toThrow(CustomException)
-      expect(usersService.profile).toHaveBeenCalledWith(userId)
+      expect(findUserByIdUseCase.execute).toHaveBeenCalledWith({ id: userId })
     })
   })
 

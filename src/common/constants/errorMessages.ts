@@ -1,5 +1,6 @@
 export const ErrorMessages = {
   USER: {
+    INVALID_DATA: () => 'Dados inválidos',
     NOT_FOUND: (id: number) => `Usuário com ID ${id} não encontrado`,
     EMAIL_EXISTS: () => `Email já está em uso`,
     ALREADY_EXISTS: (email: string) => `Usuário com email ${email} já existe`,

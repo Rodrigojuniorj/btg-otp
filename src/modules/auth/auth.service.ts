@@ -5,7 +5,8 @@ import { RegisterDto } from './dtos/register.dto'
 import { AuthUser } from './interfaces/auth-response.interface'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
-import { UsersService } from '../users/users.service'
+import { FindUserByEmailAndPasswordUseCase } from '../users/application/use-cases/find-user-by-email-and-password.use-case'
+import { CreateUserUseCase } from '../users/application/use-cases/create-user.use-case'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { CacheRepository } from '@/providers/cache/cache-repository'
@@ -26,7 +27,8 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name)
 
   constructor(
-    private readonly usersService: UsersService,
+    private readonly findUserByEmailAndPasswordUseCase: FindUserByEmailAndPasswordUseCase,
+    private readonly createUserUseCase: CreateUserUseCase,
     private readonly jwtService: JwtService,
     private readonly envConfigService: EnvConfigService,
     private readonly cache: CacheRepository,
@@ -37,7 +39,10 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<AuthUser> {
-    const user = await this.usersService.findByEmailAndPassword(email)
+    const user = await this.findUserByEmailAndPasswordUseCase.execute({
+      email,
+      password,
+    })
 
     if (!user) {
       throw new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS())
@@ -55,13 +60,16 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<void> {
-    const existingUser = await this.usersService.findByEmail(registerDto.email)
+    const existingUser = await this.findUserByEmailAndPasswordUseCase.execute({
+      email: registerDto.email,
+      password: '',
+    })
 
     if (existingUser) {
       throw new CustomException(ErrorMessages.USER.EMAIL_EXISTS())
     }
 
-    await this.usersService.create({
+    await this.createUserUseCase.execute({
       name: registerDto.name,
       email: registerDto.email,
       password: registerDto.password,

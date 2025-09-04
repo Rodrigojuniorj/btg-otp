@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthService } from '../auth.service'
-import { UsersService } from '../../users/users.service'
 import { JwtService } from '@nestjs/jwt'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { CacheRepository } from '@/providers/cache/cache-repository'
@@ -13,8 +12,6 @@ import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import { OtpPurpose } from '../../otp/domain/enums/otp.enum'
 import * as bcrypt from 'bcryptjs'
-import { UserResponseDto } from '@/modules/users/dto/user-response.dto'
-import { UserResponsePasswordDto } from '@/modules/users/dto/user-response-password.dto'
 import { AuthValidateOtpDto } from '../dtos/auth-validate-otp.dto'
 import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
 import { CreateOtpResponse } from '@/modules/otp/application/interfaces/create-otp.interface'
@@ -24,7 +21,6 @@ const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>
 
 describe('AuthService', () => {
   let service: AuthService
-  let usersService: jest.Mocked<UsersService>
   let jwtService: jest.Mocked<JwtService>
   let envConfigService: jest.Mocked<EnvConfigService>
   let cache: jest.Mocked<CacheRepository>

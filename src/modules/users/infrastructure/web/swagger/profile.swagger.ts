@@ -1,5 +1,5 @@
 import { ApiOperation, ApiResponse } from '@nestjs/swagger'
-import { UserResponseDto } from '../dto/user-response.dto'
+import { UserProfileResponseDto } from '../dto/user-profile-response.dto'
 
 export const ProfileSwagger = {
   operation: ApiOperation({
@@ -10,6 +10,6 @@ export const ProfileSwagger = {
   response: ApiResponse({
     status: 200,
     description: 'Perfil do usuário obtido com sucesso',
-    type: UserResponseDto,
+    type: UserProfileResponseDto,
   }),
 }
