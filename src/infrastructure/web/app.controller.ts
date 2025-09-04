@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
-import { Public } from './common/decorators/public.decorator'
 import { HealthSwagger } from './swagger'
+import { Public } from '@/common/decorators/public.decorator'
 
 @Controller()
 export class AppController {
