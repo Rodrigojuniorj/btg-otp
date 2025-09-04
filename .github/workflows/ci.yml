@@ -126,7 +126,7 @@ jobs:
 
       - name: 🗄️ Executar migrations
         env:
-          NODE_ENV: production
+          NODE_ENV: development
         run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
 
       - name: 🧪 Executar testes unitários
@@ -229,7 +229,7 @@ jobs:
 
       - name: 🗄️ Executar migrations
         env:
-          NODE_ENV: production
+          NODE_ENV: development
         run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
 
       - name: 🧪 Executar testes E2E
@@ -263,6 +263,7 @@ jobs:
     name: 🏗️ Build Docker
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests, security]
+    if: needs.unit-tests.result == 'success' && needs.integration-tests.result == 'success' && needs.security.result == 'success'
 
     steps:
       - name: 📥 Checkout código
@@ -292,6 +293,7 @@ jobs:
     name: 🚀 Deploy Staging
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests, security]
+    if: needs.unit-tests.result == 'success' && needs.integration-tests.result == 'success' && needs.security.result == 'success'
 
     environment: staging
 
@@ -312,8 +314,8 @@ jobs:
   deploy-production:
     name: 🚀 Deploy Produção
     runs-on: ubuntu-latest
-    if: always()
     needs: [unit-tests, integration-tests, security]
+    if: needs.unit-tests.result == 'success' && needs.integration-tests.result == 'success' && needs.security.result == 'success'
     environment: BTG
 
     steps:
@@ -402,6 +404,7 @@ jobs:
     name: 📢 Notificação Staging
     runs-on: ubuntu-latest
     needs: [deploy-staging]
+    if: always()
 
     steps:
       - name: 📢 Notificação de sucesso
@@ -426,6 +429,7 @@ jobs:
     name: 📢 Notificação Produção
     runs-on: ubuntu-latest
     needs: [deploy-production]
+    if: always()
 
     steps:
       - name: 📢 Notificação de sucesso
