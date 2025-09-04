@@ -195,9 +195,9 @@ describe('OtpController', () => {
         controller.getOtpStatus,
       )
 
-      expect(createMethodMetadata).toBe(1) // POST = 1
-      expect(validateMethodMetadata).toBe(1) // POST = 1
-      expect(statusMethodMetadata).toBe(0) // GET = 0
+      expect(createMethodMetadata).toBe(1)
+      expect(validateMethodMetadata).toBe(1)
+      expect(statusMethodMetadata).toBe(0)
     })
   })
 })

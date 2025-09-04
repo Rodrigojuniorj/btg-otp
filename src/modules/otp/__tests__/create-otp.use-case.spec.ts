@@ -121,7 +121,7 @@ describe('CreateOtpUseCase', () => {
         '123456',
         'test@example.com',
         OtpPurpose.GENERAL,
-        new Date(Date.now() + 60000), // 1 minute from now
+        new Date(Date.now() + 60000),
       )
 
       otpRepository.findActiveByIdentifier.mockResolvedValue(existingOtp)
@@ -140,7 +140,7 @@ describe('CreateOtpUseCase', () => {
         '123456',
         'test@example.com',
         OtpPurpose.GENERAL,
-        new Date(Date.now() - 60000), // 1 minute ago
+        new Date(Date.now() - 60000),
       )
 
       envConfigService.get.mockImplementation((key: string) => {
