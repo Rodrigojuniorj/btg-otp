@@ -78,6 +78,10 @@ const config: Config = {
     'src/common/service',
     'src/common/guards/jwt-auth.guard.ts',
     'column-date.util.ts',
+    'lambda.ts',
+    'env.util.ts',
+    'password-reset-template.ts',
+    'welcome-template.ts',
   ],
 
   moduleNameMapper: {
@@ -88,10 +92,8 @@ const config: Config = {
 
   testTimeout: 10000,
 
-  // Configurações para testes de integração
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/test/e2e/'],
 
-  // Configurações para melhor performance
   maxWorkers: '50%',
   maxConcurrency: 1,
 }

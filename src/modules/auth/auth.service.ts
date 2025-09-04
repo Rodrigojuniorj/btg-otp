@@ -11,12 +11,14 @@ import { AuthLoginResponseDto } from './dtos/auth-login-response.dto'
 import { CacheRepository } from '@/providers/cache/cache-repository'
 import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
-import { EmailTemplatesService } from '@/providers/email/templates'
+import { EmailTemplatesService } from '@/providers/email/templates/email-templates.service'
 import { parseTimeToSeconds } from '@/common/utils/parse-time-to-seconds.util'
 import { OtpService } from '../otp/otp.service'
 import { OtpPurpose } from '../otp/enums/otp.enum'
 import { AuthLoginValidateResponseDto } from './dtos/auth-login-validate-response.dto'
 import { AuthValidateOtpDto } from './dtos/auth-validate-otp.dto'
+import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
+import { SubjectEmail } from '@/providers/email/enums/subject-email.enum'
 
 @Injectable()
 export class AuthService {
@@ -85,7 +87,7 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         hash,
-        type: 'otp',
+        type: JwtTypeSign.OTP,
       },
       {
         expiresIn: expiresAt.getTime(),
@@ -102,7 +104,7 @@ export class AuthService {
 
     await this.sendEmailQueueProvider.execute({
       recipient: user.email,
-      subject: 'Token de Acesso - BTG OTP System',
+      subject: SubjectEmail.TOKEN_ACCESS,
       body: emailHtml,
     })
 
@@ -134,7 +136,7 @@ export class AuthService {
       {
         sub: user.sub,
         email: user.email,
-        type: 'access',
+        type: JwtTypeSign.ACCESS,
         hash: user.hash,
       },
       {

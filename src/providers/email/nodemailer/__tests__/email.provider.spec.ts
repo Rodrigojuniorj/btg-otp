@@ -10,8 +10,6 @@ jest.mock('nodemailer', () => ({
 
 describe('EmailProvider', () => {
   let service: EmailProvider
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let envConfigService: EnvConfigService
 
   const mockEnvConfigService = {
     get: jest.fn(),
@@ -31,7 +29,6 @@ describe('EmailProvider', () => {
     }).compile()
 
     service = module.get<EmailProvider>(EmailProvider)
-    envConfigService = module.get<EnvConfigService>(EnvConfigService)
 
     mockEnvConfigService.get.mockImplementation((key: string) => {
       const config = {
@@ -77,7 +74,9 @@ describe('EmailProvider', () => {
     await service.sendEmail(emailData)
 
     expect(mockSendMail).toHaveBeenCalledWith({
-      from: 'test@example.com',
+      from: {
+        name: 'BTG OTP System',
+      },
       to: 'recipient@example.com',
       subject: 'Test Subject',
       html: '<p>Test body</p>',

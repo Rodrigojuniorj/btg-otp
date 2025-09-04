@@ -39,9 +39,7 @@ export class OtpService {
 
     await this.otpRepository.expireOldOtps(email, purpose)
 
-    const otpCode = generateOtpCode(
-      this.envConfigService.get('OTP_LENGTH') || 6,
-    )
+    const otpCode = generateOtpCode(this.envConfigService.get('OTP_LENGTH'))
     const hash = generateUniqueHash()
     const expiresAt = new Date(
       Date.now() + this.envConfigService.get('OTP_MINUTE_DURATION') * 60 * 1000,

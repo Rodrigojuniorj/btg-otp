@@ -4,17 +4,14 @@ export class RemoveUserOtpHistoryTable1756820771796
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Remove a foreign key constraint primeiro
     await queryRunner.query(
       `ALTER TABLE "user_otp_history" DROP CONSTRAINT "FK_9de2fb7a4d3e863f56c2b6bba57"`,
     )
 
-    // Remove a tabela user_otp_history
     await queryRunner.query(`DROP TABLE "user_otp_history"`)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Recria a tabela user_otp_history
     await queryRunner.query(
       `CREATE TABLE "user_otp_history" (
                 "id" SERIAL NOT NULL, 
@@ -32,7 +29,6 @@ export class RemoveUserOtpHistoryTable1756820771796
             )`,
     )
 
-    // Recria a foreign key constraint
     await queryRunner.query(
       `ALTER TABLE "user_otp_history" ADD CONSTRAINT "FK_9de2fb7a4d3e863f56c2b6bba57" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     )

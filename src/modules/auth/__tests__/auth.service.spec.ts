@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { CacheRepository } from '@/providers/cache/cache-repository'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
-import { EmailTemplatesService } from '@/providers/email/templates'
+import { EmailTemplatesService } from '@/providers/email/templates/email-templates.service'
 import { OtpService } from '../../otp/otp.service'
 import { RegisterDto } from '../dtos/register.dto'
 import { CustomException } from '@/common/exceptions/customException'
@@ -16,6 +16,7 @@ import { OtpDto } from '@/modules/otp/dto/otp.dto'
 import { UserResponseDto } from '@/modules/users/dto/user-response.dto'
 import { UserResponsePasswordDto } from '@/modules/users/dto/user-response-password.dto'
 import { AuthValidateOtpDto } from '../dtos/auth-validate-otp.dto'
+import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
 
 jest.mock('bcryptjs')
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>
@@ -280,7 +281,7 @@ describe('AuthService', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'otpHash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
       const mockAccessToken = 'access.token.here'
@@ -315,7 +316,7 @@ describe('AuthService', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'otpHash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
       cache.get.mockResolvedValue(null)
@@ -336,7 +337,7 @@ describe('AuthService', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'otpHash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
       cache.get.mockResolvedValue('999')

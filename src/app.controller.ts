@@ -1,15 +1,15 @@
 import { Controller, Get } from '@nestjs/common'
 import { Public } from './common/decorators/public.decorator'
-import { ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { HealthSwagger } from './swagger'
 
 @Controller()
 export class AppController {
   constructor() {}
 
   @Public()
-  @ApiOperation({ summary: 'Health check' })
-  @ApiResponse({ status: 200, description: 'Health check' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @HealthSwagger.operation
+  @HealthSwagger.response
+  @HealthSwagger.error
   @Get('health')
   healthCheck(): { status: string } {
     return {

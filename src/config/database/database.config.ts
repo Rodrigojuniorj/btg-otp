@@ -2,13 +2,12 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { User } from '../../modules/users/entities/user.entity'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { Otp } from '../../modules/otp/entities/otp.entity'
+import { NodeEnv } from '../../common/enums/node-env.enum'
 
 export const databaseConfig = (
   envConfigService: EnvConfigService,
 ): TypeOrmModuleOptions => {
-  const nodeEnv = process.env.NODE_ENV || envConfigService.get('NODE_ENV')
-
-  if (nodeEnv === 'test') {
+  if (envConfigService.get('NODE_ENV') === NodeEnv.TEST) {
     return {
       type: 'sqlite',
       database: ':memory:',
@@ -36,9 +35,12 @@ export const databaseConfig = (
     migrations: ['dist/migrations/*.js'],
     migrationsRun: true,
     synchronize: false,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-    logging: envConfigService.get('NODE_ENV') !== 'production',
+    ssl:
+      envConfigService.get('NODE_ENV') === NodeEnv.PRODUCTION
+        ? {
+            rejectUnauthorized: false,
+          }
+        : false,
+    logging: envConfigService.get('NODE_ENV') !== NodeEnv.PRODUCTION,
   }
 }

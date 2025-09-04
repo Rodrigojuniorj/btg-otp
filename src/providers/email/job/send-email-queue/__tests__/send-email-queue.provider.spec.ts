@@ -1,12 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { SendEmailQueueProvider } from '../send-email-queue.provider'
 import { getQueueToken } from '@nestjs/bullmq'
-import { Queue } from 'bullmq'
 
 describe('SendEmailQueueProvider', () => {
   let service: SendEmailQueueProvider
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let sendEmailQueue: Queue
 
   const mockQueue = {
     add: jest.fn(),
@@ -24,7 +21,6 @@ describe('SendEmailQueueProvider', () => {
     }).compile()
 
     service = module.get<SendEmailQueueProvider>(SendEmailQueueProvider)
-    sendEmailQueue = module.get<Queue>(getQueueToken('SEND_EMAIL_QUEUE'))
   })
 
   it('should be defined', () => {

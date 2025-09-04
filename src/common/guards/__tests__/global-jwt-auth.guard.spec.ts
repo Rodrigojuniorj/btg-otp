@@ -93,8 +93,8 @@ describe('GlobalJwtAuthGuard', () => {
 
     it('should validate OTP token when route requires OTP auth', async () => {
       reflector.getAllAndOverride
-        .mockReturnValueOnce(false) // isPublic
-        .mockReturnValueOnce(true) // isOtpAuth
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true)
 
       const mockRequest = {
         headers: { authorization: 'Bearer otp-token' },
@@ -117,8 +117,8 @@ describe('GlobalJwtAuthGuard', () => {
 
     it('should validate access token when route requires regular auth', async () => {
       reflector.getAllAndOverride
-        .mockReturnValueOnce(false) // isPublic
-        .mockReturnValueOnce(false) // isOtpAuth
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(false)
 
       const mockRequest = {
         headers: { authorization: 'Bearer access-token' },
@@ -142,8 +142,8 @@ describe('GlobalJwtAuthGuard', () => {
 
     it('should throw error when OTP token is invalid', async () => {
       reflector.getAllAndOverride
-        .mockReturnValueOnce(false) // isPublic
-        .mockReturnValueOnce(true) // isOtpAuth
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true)
 
       const mockRequest = {
         headers: { authorization: 'Bearer invalid-token' },
@@ -165,8 +165,8 @@ describe('GlobalJwtAuthGuard', () => {
 
     it('should throw error when access token is invalid', async () => {
       reflector.getAllAndOverride
-        .mockReturnValueOnce(false) // isPublic
-        .mockReturnValueOnce(false) // isOtpAuth
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(false)
 
       const mockRequest = {
         headers: { authorization: 'Bearer invalid-token' },
@@ -187,8 +187,8 @@ describe('GlobalJwtAuthGuard', () => {
 
     it('should throw error when session is invalid', async () => {
       reflector.getAllAndOverride
-        .mockReturnValueOnce(false) // isPublic
-        .mockReturnValueOnce(false) // isOtpAuth
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(false)
 
       const mockRequest = {
         headers: { authorization: 'Bearer access-token' },

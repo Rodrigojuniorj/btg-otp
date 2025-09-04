@@ -25,20 +25,10 @@ export const envSchema = z
     REDIS_DB: z.coerce.number().optional().default(0),
     REDIS_PASSWORD: z.string().optional().default(''),
     SERVER_URL: z.string(),
-    OTP_MINUTE_DURATION: z.coerce.number().min(1).max(10).optional().default(5),
-    OTP_LENGTH: z.coerce.number().min(2).max(10).optional().default(6),
-    OTP_MAX_ATTEMPTS: z.coerce.number().min(1).max(10).optional().default(3),
+    OTP_MINUTE_DURATION: z.coerce.number().min(1).max(10).default(5),
+    OTP_LENGTH: z.coerce.number().min(2).max(10).default(6),
+    OTP_MAX_ATTEMPTS: z.coerce.number().min(1).max(10).default(3),
     JWT_OTP_SECRET: z.string(),
-    REDIS_TLS: z
-      .string()
-      .transform((val) => val.toLowerCase() === 'true')
-      .optional()
-      .default(false),
-    REDIS_CLUSTER: z
-      .string()
-      .transform((val) => val.toLowerCase() === 'true')
-      .optional()
-      .default(false),
   })
   .transform((env) => ({
     ...env,

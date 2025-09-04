@@ -10,16 +10,11 @@ async function generateSwaggerDocs() {
   console.log('📚 Gerando documentação Swagger estática...')
 
   try {
-    // Criar app temporário apenas para gerar docs
     const app = await NestFactory.create(AppModule, { logger: false })
 
-    // Obter configurações de ambiente
     const envConfigService = app.get(EnvConfigService)
     const documentationPrefix = envConfigService.get('DOCUMENTATION_PREFIX')
-    const serverUrl = envConfigService.get('SERVER_URL')
-
-    // NÃO aplicar prefixo global aqui, pois as rotas já vêm com o prefixo correto
-    // app.setGlobalPrefix(documentationPrefix)
+    const serverUrl = 'https://g3sxhvmeqe.execute-api.sa-east-1.amazonaws.com'
 
     const config = new DocumentBuilder()
       .setTitle('BTG OTP API')
@@ -27,7 +22,7 @@ async function generateSwaggerDocs() {
       .setVersion('1.0')
       .addServer(`${serverUrl}/${documentationPrefix}`, 'Produção')
       .addServer(
-        `http://localhost:3333/${documentationPrefix}`,
+        `https://g3sxhvmeqe.execute-api.sa-east-1.amazonaws.com/${documentationPrefix}`,
         'Desenvolvimento Local',
       )
       .addBearerAuth(
@@ -42,16 +37,13 @@ async function generateSwaggerDocs() {
 
     const document = SwaggerModule.createDocument(app, config)
 
-    // Criar diretório se não existir
     const docsDir = join(__dirname, '../dist/docs')
     mkdirSync(docsDir, { recursive: true })
 
-    // Salvar JSON do Swagger
     const swaggerJsonPath = join(docsDir, 'swagger.json')
     writeFileSync(swaggerJsonPath, JSON.stringify(document, null, 2))
     console.log(`✅ Swagger JSON salvo em: ${swaggerJsonPath}`)
 
-    // Gerar HTML estático
     const htmlContent = generateSwaggerHTML(document)
     const swaggerHtmlPath = join(docsDir, 'index.html')
     writeFileSync(swaggerHtmlPath, htmlContent)

@@ -7,6 +7,8 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator'
 import { OTP_AUTH_KEY } from '../decorators/otp-auth.decorator'
 import { CacheRepository } from '@/providers/cache/cache-repository'
 import { CustomException } from '../exceptions/customException'
+import { JwtTypeSign } from '../enums/jwt-type-sign.enum'
+import { ErrorMessages } from '../constants/errorMessages'
 
 @Injectable()
 export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
@@ -46,7 +48,10 @@ export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
     const token = this.extractTokenFromHeader(request)
 
     if (!token) {
-      throw new CustomException('Token não fornecido', HttpStatus.UNAUTHORIZED)
+      throw new CustomException(
+        ErrorMessages.GENERAL.TOKEN_NOT_PROVIDED(),
+        HttpStatus.UNAUTHORIZED,
+      )
     }
 
     try {
@@ -54,9 +59,9 @@ export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
         secret: this.envConfigService.get('JWT_OTP_SECRET'),
       })
 
-      if (payload.type !== 'otp') {
+      if (payload.type !== JwtTypeSign.OTP) {
         throw new CustomException(
-          'Token inválido: deve ser um token OTP',
+          ErrorMessages.GENERAL.TOKEN_TYPE_INVALID(),
           HttpStatus.UNAUTHORIZED,
         )
       }
@@ -65,7 +70,7 @@ export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
       return true
     } catch {
       throw new CustomException(
-        'Token OTP inválido ou expirado',
+        ErrorMessages.GENERAL.TOKEN_OTP_INVALID(),
         HttpStatus.UNAUTHORIZED,
       )
     }
@@ -78,7 +83,10 @@ export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
     const token = this.extractTokenFromHeader(request)
 
     if (!token) {
-      throw new CustomException('Token não fornecido', HttpStatus.UNAUTHORIZED)
+      throw new CustomException(
+        ErrorMessages.GENERAL.TOKEN_NOT_PROVIDED(),
+        HttpStatus.UNAUTHORIZED,
+      )
     }
 
     try {
@@ -92,7 +100,7 @@ export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
 
       if (!activeSession || activeSession !== payload.sub.toString()) {
         throw new CustomException(
-          'Sessão expirada ou inválida. Faça login novamente.',
+          ErrorMessages.GENERAL.TOKEN_ACCESS_INVALID(),
           HttpStatus.UNAUTHORIZED,
         )
       }
@@ -104,7 +112,7 @@ export class GlobalJwtAuthGuard extends AuthGuard('jwt') {
         throw error
       }
       throw new CustomException(
-        'Token de acesso inválido ou expirado',
+        ErrorMessages.GENERAL.TOKEN_ACCESS_INVALID(),
         HttpStatus.UNAUTHORIZED,
       )
     }

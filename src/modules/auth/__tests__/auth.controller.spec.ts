@@ -7,6 +7,7 @@ import { TaskType } from '@/common/enums/task-type.enum'
 import { CustomException } from '@/common/exceptions/customException'
 import { Response } from 'express'
 import { AuthValidateOtpDto } from '../dtos/auth-validate-otp.dto'
+import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
 
 describe('AuthController', () => {
   let controller: AuthController
@@ -140,7 +141,7 @@ describe('AuthController', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'hash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
       const mockValidationResponse = {
@@ -167,7 +168,7 @@ describe('AuthController', () => {
         sub: 1,
         email: 'test@example.com',
         hash: 'hash123',
-        type: 'otp' as const,
+        type: JwtTypeSign.OTP,
       }
 
       authService.validate.mockRejectedValue(

@@ -7,11 +7,14 @@ describe('JwtStrategy', () => {
   let strategy: JwtStrategy
   let envConfigService: jest.Mocked<EnvConfigService>
 
-  const mockEnvConfigService = {
-    get: jest.fn(),
-  }
-
   beforeEach(async () => {
+    const mockEnvConfigService = {
+      get: jest.fn().mockImplementation((key: string) => {
+        if (key === 'JWT_SECRET') return 'test-secret'
+        return undefined
+      }),
+    }
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
@@ -24,8 +27,6 @@ describe('JwtStrategy', () => {
 
     strategy = module.get<JwtStrategy>(JwtStrategy)
     envConfigService = module.get(EnvConfigService)
-
-    jest.clearAllMocks()
   })
 
   afterEach(() => {
@@ -51,7 +52,7 @@ describe('JwtStrategy', () => {
     })
 
     it('should use default secret when JWT_SECRET is not provided', () => {
-      envConfigService.get.mockReturnValue('')
+      envConfigService.get.mockReturnValue('default-secret')
 
       new JwtStrategy(envConfigService)
 

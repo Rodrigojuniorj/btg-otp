@@ -19,8 +19,8 @@ export class OtpRepository extends OtpRepositoryPort {
     const otp = this.repository.create({
       ...otpData,
       status: OtpStatus.PENDING,
-      validatedAt: undefined,
     })
+
     return this.repository.save(otp)
   }
 

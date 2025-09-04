@@ -6,12 +6,13 @@ import { SendEmailConsumerProvider } from './job/send-email-consumer/send-email-
 import { SendEmailQueueProvider } from './job/send-email-queue/send-email-queue.provider'
 import { EmailProvider } from './nodemailer/email.provider'
 import { EmailTemplatesService } from './templates/email-templates.service'
+import { RegisterQueue } from '@/common/enums/register-queue.enum'
 
 @Module({
   imports: [
     ConfigModule,
     EnvConfigModule,
-    BullModule.registerQueue({ name: 'SEND_EMAIL_QUEUE' }),
+    BullModule.registerQueue({ name: RegisterQueue.SEND_EMAIL_QUEUE }),
   ],
   providers: [
     EmailProvider,
