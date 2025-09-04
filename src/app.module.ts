@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
-import { AppController } from './app.controller'
 import { AuthModule } from './modules/auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { envSchema } from './common/service/env/env'
@@ -13,6 +12,7 @@ import { UsersModule } from './modules/users/users.module'
 import { OtpModule } from './modules/otp/otp.module'
 import { JwtModule } from '@nestjs/jwt'
 import { CacheModule } from './providers/cache/cache.module'
+import { AppController } from './infrastructure/web/app.controller'
 
 @Module({
   imports: [

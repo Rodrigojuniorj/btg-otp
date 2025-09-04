@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { User } from '../../modules/users/entities/user.entity'
+import { UserEntity } from '../../modules/users/infrastructure/database/user.entity'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
-import { Otp } from '../../modules/otp/entities/otp.entity'
+import { OtpEntity } from '../../modules/otp/infrastructure/database/otp.entity'
 import { NodeEnv } from '../../common/enums/node-env.enum'
 
 export const databaseConfig = (
@@ -11,7 +11,7 @@ export const databaseConfig = (
     return {
       type: 'sqlite',
       database: ':memory:',
-      entities: [User, Otp],
+      entities: [UserEntity, OtpEntity],
       synchronize: true,
       dropSchema: true,
       migrationsRun: false,
@@ -31,7 +31,7 @@ export const databaseConfig = (
     password: envConfigService.get('DB_PASSWORD'),
     database: envConfigService.get('DB_DATABASE'),
     schema: envConfigService.get('DB_SCHEMA'),
-    entities: [User, Otp],
+    entities: [UserEntity, OtpEntity],
     migrations: ['dist/migrations/*.js'],
     migrationsRun: true,
     synchronize: false,

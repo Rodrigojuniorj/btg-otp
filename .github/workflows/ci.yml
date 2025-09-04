@@ -313,6 +313,7 @@ jobs:
     name: 🚀 Deploy Produção
     runs-on: ubuntu-latest
     if: always()
+    needs: [unit-tests, integration-tests, security]
     environment: BTG
 
     steps:
