@@ -1,13 +1,10 @@
-import { IsString, IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class AuthValidateOtpDto {
   @ApiProperty({
-    description: 'Código OTP de 6 dígitos enviado por email',
+    description: 'Código OTP para validação',
     example: '123456',
-    type: String,
-    minLength: 6,
-    maxLength: 6,
   })
   @IsString()
   @IsNotEmpty()

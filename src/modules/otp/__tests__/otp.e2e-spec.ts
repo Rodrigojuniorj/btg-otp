@@ -83,15 +83,20 @@ describe('OtpController (E2E)', () => {
         .expect(HttpStatus.BAD_REQUEST)
     })
 
-    it('should return 400 Bad Request for missing purpose', () => {
-      const invalidDto = {
+    it('should create OTP with default purpose when purpose is not provided', () => {
+      const validDto = {
         email: 'test@example.com',
       }
 
       return request(app.getHttpServer())
         .post('/otp/create')
-        .send(invalidDto)
-        .expect(HttpStatus.BAD_REQUEST)
+        .send(validDto)
+        .expect(HttpStatus.CREATED)
+        .then((response) => {
+          expect(response.body).toHaveProperty('hash')
+          expect(response.body).toHaveProperty('expiresAt')
+          expect(response.body).toHaveProperty('otpCode')
+        })
     })
 
     it('should return 400 Bad Request for invalid purpose', () => {

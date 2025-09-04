@@ -3,7 +3,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger'
-import { LoginOtpChallengeResponseDto } from '../dtos/login-otp-challenge-response.dto'
+import { LoginOtpChallengeResponseDto } from '../dto/login-otp-challenge-response.dto'
 
 export const LoginSwagger = {
   operation: ApiOperation({

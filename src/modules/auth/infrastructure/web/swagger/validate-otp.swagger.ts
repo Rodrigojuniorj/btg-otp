@@ -1,5 +1,5 @@
 import { ApiResponse, ApiOperation } from '@nestjs/swagger'
-import { AuthLoginValidateResponseDto } from '../dtos/auth-login-validate-response.dto'
+import { AuthLoginValidateResponseDto } from '../dto/auth-login-validate-response.dto'
 
 export const ValidateOtpSwagger = {
   operation: ApiOperation({

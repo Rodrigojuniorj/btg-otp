@@ -33,6 +33,7 @@ import { FindUserByEmailAndPasswordUseCase } from './application/use-cases/find-
     CreateUserUseCase,
     FindUserByIdUseCase,
     FindUserByEmailUseCase,
+    FindUserByEmailAndPasswordUseCase,
     UpdateUserUseCase,
     DeleteUserUseCase,
     ListUsersUseCase,
