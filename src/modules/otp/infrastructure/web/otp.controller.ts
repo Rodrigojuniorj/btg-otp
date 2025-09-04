@@ -5,8 +5,13 @@ import { CreateOtpUseCase } from '../../application/use-cases/create-otp.use-cas
 import { ValidateOtpUseCase } from '../../application/use-cases/validate-otp.use-case'
 import { GetOtpStatusUseCase } from '../../application/use-cases/get-otp-status.use-case'
 import { CreateOtpRequest } from '../../application/interfaces/create-otp.interface'
+import {
+  ValidateOtpRequest,
+  ValidateOtpResponse,
+} from '../../application/interfaces/validate-otp.interface'
 import { CreateOtpDto } from './dto/create-otp.dto'
-import { CreateOtpSwagger } from './swagger'
+import { ValidateOtpDto } from './dto/validate-otp.dto'
+import { CreateOtpSwagger, ValidateOtpSwagger } from './swagger'
 import { CreateOtpResponseDto } from './dto/create-otp-response.dto'
 
 @ApiTags('OTP')
@@ -35,5 +40,26 @@ export class OtpController {
     }
 
     return this.createOtpUseCase.execute(request)
+  }
+
+  @ValidateOtpSwagger.operation
+  @ValidateOtpSwagger.body
+  @ValidateOtpSwagger.ok
+  @ValidateOtpSwagger.unauthorized
+  @Post('validate')
+  @HttpCode(HttpStatus.OK)
+  async validateOtp(
+    @Body() validateOtpDto: ValidateOtpDto,
+  ): Promise<ValidateOtpResponse> {
+    const request: ValidateOtpRequest = {
+      otpCode: validateOtpDto.otpCode,
+      hash: validateOtpDto.hash,
+    }
+
+    await this.validateOtpUseCase.execute(request)
+
+    return {
+      message: 'OTP validado com sucesso',
+    }
   }
 }
