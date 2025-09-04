@@ -5,7 +5,6 @@ import { EnvConfigService } from './common/service/env/env-config.service'
 import helmet from 'helmet'
 import { ValidationPipe } from '@nestjs/common'
 import * as crypto from 'crypto'
-import { NodeEnv } from './common/enums/node-env.enum'
 
 Object.defineProperty(global, 'crypto', {
   value: crypto,
@@ -21,14 +20,12 @@ export const handler = async (event, context) => {
 
     const envConfigService = nestApp.get(EnvConfigService)
 
-    if (envConfigService.get('NODE_ENV') !== NodeEnv.PRODUCTION) {
-      nestApp.enableCors({
-        origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        allowedHeaders: 'Content-Type, Accept, Authorization, x-time-zone',
-        credentials: false,
-      })
-    }
+    nestApp.enableCors({
+      origin: '*',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: 'Content-Type, Accept, Authorization, x-time-zone',
+      credentials: false,
+    })
 
     nestApp.useGlobalPipes(new ValidationPipe({ transform: true }))
 

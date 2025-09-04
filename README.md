@@ -182,6 +182,61 @@ yarn test:cov
 
 ---
 
+## ℹ️ Mais informações
+
+Este projeto foi desenvolvido utilizando NestJS.
+Na documentação oficial, o framework sugere a utilização de uma estrutura baseada em módulos tradicionais, sem a adoção explícita de Arquitetura Limpa ou Hexagonal.
+
+👉 Você pode conferir essa implementação na branch:
+
+- [Branch Arquitetura NestJS](https://github.com/Rodrigojuniorj/btg-otp/tree/core/feature/nestjs-folder-structure)
+
+Já nas branches develop e main, o projeto foi estruturado seguindo os princípios da Arquitetura Limpa/Hexagonal, garantindo maior separação de responsabilidades, testabilidade e independência de frameworks.
+
+---
+
+## 🔮 Possíveis Melhorias & Próximos Passos
+
+### Integração com múltiplos provedores de e-mail
+
+Permitir configuração de fallback entre serviços (ex.: Amazon SES, SendGrid, Gmail) para garantir maior disponibilidade no envio de OTPs.
+
+### Suporte a SMS e WhatsApp
+
+Expandir os canais de envio de OTP, utilizando provedores como Twilio ou AWS SNS.
+
+### Políticas avançadas de segurança
+
+- Bloqueio temporário após tentativas inválidas consecutivas.
+- Expiração configurável de OTP por tipo de operação.
+- Possibilidade de “lembrar dispositivo confiável”.
+
+### Cache distribuído
+
+Uso de Redis para armazenar sessões de OTP de forma distribuída, otimizando a escalabilidade em ambientes com múltiplas instâncias.
+
+### Observabilidade
+
+- Métricas com Prometheus/Grafana.
+- Logs estruturados em JSON.
+- Integração com APM (ex.: Datadog, New Relic).
+
+### Deploy multi-ambiente
+
+Automatizar pipelines CI/CD para ambientes de _staging_, _homologação_ e _produção_.
+
+### Gestão avançada de usuários
+
+- Papéis e permissões (RBAC).
+- Autenticação social (Google, GitHub, etc).
+
+### Testes adicionais
+
+- Testes de carga e stress para validar limites de OTP.
+- Testes de segurança (fuzzing, injeção, brute force).
+
+---
+
 ## 📚 Recursos e Referências
 
 - [NestJS Documentation](https://docs.nestjs.com)
