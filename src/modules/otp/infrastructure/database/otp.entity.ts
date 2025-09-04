@@ -6,11 +6,11 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm'
-import { OtpPurpose, OtpStatus } from '../enums/otp.enum'
-import { columnDate } from '../../../common/db/column-date.util'
+import { OtpPurpose, OtpStatus } from '../../domain/enums/otp.enum'
+import { columnDate } from '../../../../common/db/column-date.util'
 
 @Entity('otps')
-export class Otp {
+export class OtpEntity {
   @PrimaryGeneratedColumn()
   id: number
 

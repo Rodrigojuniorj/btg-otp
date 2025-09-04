@@ -1,47 +1,55 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, Not } from 'typeorm'
-import { Otp } from '../entities/otp.entity'
-import { OtpPurpose, OtpStatus } from '../enums/otp.enum'
-import { OtpDto } from '../dto/otp.dto'
-import { OtpRepositoryPort } from './port/otp.repository.port'
+import { OtpEntity } from './otp.entity'
+import { OtpMapper } from './otp.mapper'
+import { OtpRepositoryPort } from '../../domain/repositories/otp.repository.port'
+import { Otp } from '../../domain/entities/otp.entity'
+import { OtpPurpose, OtpStatus } from '../../domain/enums/otp.enum'
 
 @Injectable()
-export class OtpRepository extends OtpRepositoryPort {
+export class OtpRepository implements OtpRepositoryPort {
   constructor(
-    @InjectRepository(Otp)
-    private readonly repository: Repository<Otp>,
-  ) {
-    super()
+    @InjectRepository(OtpEntity)
+    private readonly repository: Repository<OtpEntity>,
+  ) {}
+
+  async create(otp: Otp): Promise<Otp> {
+    const entity = this.repository.create(OtpMapper.toEntity(otp))
+    const savedEntity = await this.repository.save(entity)
+    return OtpMapper.toDomain(savedEntity)
   }
 
-  async create(otpData: Partial<OtpDto>): Promise<OtpDto> {
-    const otp = this.repository.create({
-      ...otpData,
-      status: OtpStatus.PENDING,
-    })
-
-    return this.repository.save(otp)
-  }
-
-  async findByHash(hash: string): Promise<OtpDto | null> {
-    return this.repository.findOne({
+  async findByHash(hash: string): Promise<Otp | null> {
+    const entity = await this.repository.findOne({
       where: { hash },
     })
+
+    if (!entity) {
+      return null
+    }
+
+    return OtpMapper.toDomain(entity)
   }
 
-  async findActiveByIdentifier(identifier: string): Promise<OtpDto | null> {
-    return this.repository.findOne({
+  async findActiveByIdentifier(identifier: string): Promise<Otp | null> {
+    const entity = await this.repository.findOne({
       where: {
         identifier,
         status: Not(OtpStatus.VALIDATED),
       },
       order: { expiresAt: 'DESC' },
     })
+
+    if (!entity) {
+      return null
+    }
+
+    return OtpMapper.toDomain(entity)
   }
 
   async updateStatus(id: number, status: OtpStatus): Promise<void> {
-    const updateData: Partial<Otp> = { status }
+    const updateData: Partial<OtpEntity> = { status }
 
     if (status === OtpStatus.VALIDATED) {
       updateData.validatedAt = new Date()

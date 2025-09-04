@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { OtpStatus, OtpPurpose } from '../enums/otp.enum'
+import { OtpStatus, OtpPurpose } from '../../../domain/enums/otp.enum'
 
 export class OtpDto {
   @ApiProperty({

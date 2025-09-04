@@ -13,8 +13,9 @@ import { JwtOtpPayload } from '@/common/interfaces/jwt-otp-payload.interface'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
 import { EmailTemplatesService } from '@/providers/email/templates/email-templates.service'
 import { parseTimeToSeconds } from '@/common/utils/parse-time-to-seconds.util'
-import { OtpService } from '../otp/otp.service'
-import { OtpPurpose } from '../otp/enums/otp.enum'
+import { CreateOtpUseCase } from '../otp/application/use-cases/create-otp.use-case'
+import { ValidateOtpUseCase } from '../otp/application/use-cases/validate-otp.use-case'
+import { OtpPurpose } from '../otp/domain/enums/otp.enum'
 import { AuthLoginValidateResponseDto } from './dtos/auth-login-validate-response.dto'
 import { AuthValidateOtpDto } from './dtos/auth-validate-otp.dto'
 import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
@@ -31,7 +32,8 @@ export class AuthService {
     private readonly cache: CacheRepository,
     private readonly sendEmailQueueProvider: SendEmailQueueProvider,
     private readonly emailTemplatesService: EmailTemplatesService,
-    private readonly otpService: OtpService,
+    private readonly createOtpUseCase: CreateOtpUseCase,
+    private readonly validateOtpUseCase: ValidateOtpUseCase,
   ) {}
 
   async validateUser(email: string, password: string): Promise<AuthUser> {
@@ -69,7 +71,7 @@ export class AuthService {
   async login(email: string, password: string): Promise<AuthLoginResponseDto> {
     const user = await this.validateUser(email, password)
 
-    const { hash, expiresAt, otpCode } = await this.otpService.create({
+    const { hash, expiresAt, otpCode } = await this.createOtpUseCase.execute({
       email: user.email,
       purpose: OtpPurpose.LOGIN,
     })
@@ -129,7 +131,7 @@ export class AuthService {
       throw new CustomException(ErrorMessages.USER.INVALID_CREDENTIALS())
     }
 
-    await this.otpService.validateOtp({
+    await this.validateOtpUseCase.execute({
       otpCode: authValidateOtpDto.otpCode,
       hash: user.hash,
     })

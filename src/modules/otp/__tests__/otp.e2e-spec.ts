@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, ValidationPipe, HttpStatus } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from '@/app.module'
-import { OtpPurpose } from '@/modules/otp/enums/otp.enum'
+import { OtpPurpose } from '../domain/enums/otp.enum'
 
 describe('OtpController (E2E)', () => {
   let app: INestApplication

@@ -4,10 +4,7 @@ import {
   ApiOkResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger'
-import {
-  OtpStatusResponseDto,
-  OtpNotFoundResponseDto,
-} from '../dto/otp-status-response.dto'
+import { OtpStatusResponseDto } from '../dto/otp-status-response.dto'
 
 export const OtpStatusSwagger = {
   operation: ApiOperation({
@@ -28,6 +25,6 @@ export const OtpStatusSwagger = {
 
   notFound: ApiNotFoundResponse({
     description: 'OTP não encontrado',
-    type: OtpNotFoundResponseDto,
+    type: OtpStatusResponseDto,
   }),
 }

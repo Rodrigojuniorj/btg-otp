@@ -1,12 +1,12 @@
-import { OtpDto } from '../../dto/otp.dto'
-import { OtpPurpose, OtpStatus } from '../../enums/otp.enum'
+import { Otp } from '../entities/otp.entity'
+import { OtpPurpose, OtpStatus } from '../enums/otp.enum'
 
 export abstract class OtpRepositoryPort {
-  abstract create(otpData: Partial<OtpDto>): Promise<OtpDto>
+  abstract create(otp: Otp): Promise<Otp>
 
-  abstract findByHash(hash: string): Promise<OtpDto | null>
+  abstract findByHash(hash: string): Promise<Otp | null>
 
-  abstract findActiveByIdentifier(identifier: string): Promise<OtpDto | null>
+  abstract findActiveByIdentifier(identifier: string): Promise<Otp | null>
 
   abstract updateStatus(id: number, status: OtpStatus): Promise<void>
 

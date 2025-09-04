@@ -6,17 +6,18 @@ import { EnvConfigService } from '@/common/service/env/env-config.service'
 import { CacheRepository } from '@/providers/cache/cache-repository'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
 import { EmailTemplatesService } from '@/providers/email/templates/email-templates.service'
-import { OtpService } from '../../otp/otp.service'
+import { CreateOtpUseCase } from '../../otp/application/use-cases/create-otp.use-case'
+import { ValidateOtpUseCase } from '../../otp/application/use-cases/validate-otp.use-case'
 import { RegisterDto } from '../dtos/register.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
-import { OtpPurpose } from '../../otp/enums/otp.enum'
+import { OtpPurpose } from '../../otp/domain/enums/otp.enum'
 import * as bcrypt from 'bcryptjs'
-import { OtpDto } from '@/modules/otp/dto/otp.dto'
 import { UserResponseDto } from '@/modules/users/dto/user-response.dto'
 import { UserResponsePasswordDto } from '@/modules/users/dto/user-response-password.dto'
 import { AuthValidateOtpDto } from '../dtos/auth-validate-otp.dto'
 import { JwtTypeSign } from '@/common/enums/jwt-type-sign.enum'
+import { CreateOtpResponse } from '@/modules/otp/application/interfaces/create-otp.interface'
 
 jest.mock('bcryptjs')
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>
@@ -29,7 +30,8 @@ describe('AuthService', () => {
   let cache: jest.Mocked<CacheRepository>
   let sendEmailQueueProvider: jest.Mocked<SendEmailQueueProvider>
   let emailTemplatesService: jest.Mocked<EmailTemplatesService>
-  let otpService: jest.Mocked<OtpService>
+  let createOtpUseCase: jest.Mocked<CreateOtpUseCase>
+  let validateOtpUseCase: jest.Mocked<ValidateOtpUseCase>
 
   const mockUsersService = {
     findByEmailAndPassword: jest.fn(),
@@ -60,9 +62,12 @@ describe('AuthService', () => {
     generateOtpEmail: jest.fn(),
   }
 
-  const mockOtpService = {
-    create: jest.fn(),
-    validateOtp: jest.fn(),
+  const mockCreateOtpUseCase = {
+    execute: jest.fn(),
+  }
+
+  const mockValidateOtpUseCase = {
+    execute: jest.fn(),
   }
 
   beforeEach(async () => {
@@ -94,8 +99,12 @@ describe('AuthService', () => {
           useValue: mockEmailTemplatesService,
         },
         {
-          provide: OtpService,
-          useValue: mockOtpService,
+          provide: CreateOtpUseCase,
+          useValue: mockCreateOtpUseCase,
+        },
+        {
+          provide: ValidateOtpUseCase,
+          useValue: mockValidateOtpUseCase,
         },
       ],
     }).compile()
@@ -107,7 +116,8 @@ describe('AuthService', () => {
     cache = module.get(CacheRepository)
     sendEmailQueueProvider = module.get(SendEmailQueueProvider)
     emailTemplatesService = module.get(EmailTemplatesService)
-    otpService = module.get(OtpService)
+    createOtpUseCase = module.get(CreateOtpUseCase)
+    validateOtpUseCase = module.get(ValidateOtpUseCase)
 
     jest.clearAllMocks()
   })
@@ -246,7 +256,9 @@ describe('AuthService', () => {
         mockUser as UserResponsePasswordDto,
       )
       mockBcrypt.compare.mockResolvedValue(true as never)
-      otpService.create.mockResolvedValue(mockOtpResponse as OtpDto)
+      createOtpUseCase.execute.mockResolvedValue(
+        mockOtpResponse as CreateOtpResponse,
+      )
       cache.invalidateCache.mockResolvedValue(undefined)
       cache.set.mockResolvedValue(undefined)
       jwtService.sign.mockReturnValue(mockJwtToken)
@@ -262,7 +274,7 @@ describe('AuthService', () => {
         accessToken: mockJwtToken,
         validationUrl: `/auth/validate-otp/${mockOtpResponse.hash}`,
       })
-      expect(otpService.create).toHaveBeenCalledWith({
+      expect(createOtpUseCase.execute).toHaveBeenCalledWith({
         email: mockUser.email,
         purpose: OtpPurpose.LOGIN,
       })
@@ -287,7 +299,7 @@ describe('AuthService', () => {
       const mockAccessToken = 'access.token.here'
 
       cache.get.mockResolvedValue('1')
-      otpService.validateOtp.mockResolvedValue(undefined)
+      validateOtpUseCase.execute.mockResolvedValue(undefined)
       cache.delete.mockResolvedValue(undefined)
       jwtService.sign.mockReturnValue(mockAccessToken)
       cache.set.mockResolvedValue(undefined)
@@ -300,7 +312,7 @@ describe('AuthService', () => {
       expect(result).toEqual({
         accessToken: mockAccessToken,
       })
-      expect(otpService.validateOtp).toHaveBeenCalledWith({
+      expect(validateOtpUseCase.execute).toHaveBeenCalledWith({
         otpCode: validateOtpDto.otpCode,
         hash: mockUserOtp.hash,
       })
