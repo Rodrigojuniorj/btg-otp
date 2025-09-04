@@ -12,11 +12,13 @@ export class EmailProvider {
     this.transporter = createTransport({
       host: this.envConfigService.get('SMTP_HOST'),
       port: this.envConfigService.get('PORT_EMAIL'),
-      secure: this.envConfigService.get('SECURE_EMAIL'),
+      secure: Boolean(this.envConfigService.get('SECURE_EMAIL')),
       auth: {
         user: this.envConfigService.get('USER_EMAIL'),
         pass: this.envConfigService.get('PASS_EMAIL'),
       },
+      logger: true,
+      debug: true,
     })
   }
 
