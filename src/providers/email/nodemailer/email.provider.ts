@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { createTransport, Transporter } from 'nodemailer'
 import { SendEmailDto } from './dto/send-email.dto'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
@@ -6,6 +6,7 @@ import { EnvConfigService } from '@/common/service/env/env-config.service'
 @Injectable()
 export class EmailProvider {
   private transporter: Transporter
+  private readonly logger = new Logger(EmailProvider.name)
 
   constructor(private readonly envConfigService: EnvConfigService) {
     this.transporter = createTransport({
@@ -30,8 +31,10 @@ export class EmailProvider {
         html: data.body,
         attachments: data.attachments,
       })
+
+      this.logger.log(`Email enviado para ${data.recipient}`)
     } catch (error) {
-      console.error('Erro ao enviar o email:', error)
+      this.logger.error(`Erro ao enviar o email: ${error}`)
     }
   }
 }

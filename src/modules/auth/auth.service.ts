@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcryptjs'
 import { RegisterDto } from './dtos/register.dto'
@@ -22,6 +22,8 @@ import { SubjectEmail } from '@/providers/email/enums/subject-email.enum'
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name)
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -81,6 +83,8 @@ export class AuthService {
       user.id.toString(),
       ttlSeconds,
     )
+
+    this.logger.log(`OTP criado para login - otp_session:${user.id}}`)
 
     const otpToken = this.jwtService.sign(
       {
@@ -150,6 +154,8 @@ export class AuthService {
       user.sub.toString(),
       parseTimeToSeconds(this.envConfigService.get('JWT_EXPIRES_IN')),
     )
+
+    this.logger.log(`Login completado com sucesso - otp_session:${user.sub}`)
 
     return {
       accessToken,
